@@ -3,7 +3,8 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('api', {
   selectImage: () => ipcRenderer.invoke('select-image'),
-  convertImage: (inputPath) => ipcRenderer.invoke('convert-image', inputPath)
+  convertImage: (inputPath) => ipcRenderer.invoke('convert-image', inputPath),
+  openInFolder: (targetPath) => ipcRenderer.invoke('open-in-folder', targetPath)
 });
 
 window.addEventListener('DOMContentLoaded', () => {

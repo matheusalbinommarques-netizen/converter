@@ -71,6 +71,12 @@
         color: #e5e7eb;
         box-shadow: 0 10px 20px rgba(0, 0, 0, 0.6);
       }
+      button.ghost {
+        background: transparent;
+        border: 1px solid #4b5563;
+        color: #e5e7eb;
+        box-shadow: none;
+      }
       button:disabled {
         opacity: 0.6;
         cursor: default;
@@ -83,6 +89,10 @@
       }
       button.secondary:hover:not(:disabled) {
         box-shadow: 0 14px 30px rgba(0, 0, 0, 0.8);
+      }
+      button.ghost:hover:not(:disabled) {
+        box-shadow: none;
+        background: rgba(15, 23, 42, 0.8);
       }
       #status {
         margin-top: 16px;
@@ -109,15 +119,18 @@
   <body>
     <div class="card">
       <h1>Conversor de Arquivos Universal</h1>
-      <h2>MVP Desktop – Fase 2</h2>
-      <p>Primeira funcionalidade real: converter imagens PNG/JPG para JPG.</p>
+      <h2>MVP Desktop – Imagem para JPG</h2>
+      <p>Selecione uma imagem PNG/JPG, converta e abra a pasta do resultado.</p>
 
       <div class="tag">imagem → jpg</div>
 
       <div class="actions">
-        <button id="select-file">Escolher imagem (PNG/JPG)</button>
+        <button id="select-file">Escolher imagem</button>
         <button id="convert-btn" class="secondary" disabled>
           Converter para JPG
+        </button>
+        <button id="open-folder-btn" class="ghost" disabled>
+          Abrir pasta do arquivo
         </button>
       </div>
 
@@ -128,10 +141,12 @@
     <script>
       const selectBtn = document.getElementById('select-file');
       const convertBtn = document.getElementById('convert-btn');
+      const openFolderBtn = document.getElementById('open-folder-btn');
       const statusEl = document.getElementById('status');
       const selectedPathEl = document.getElementById('selected-path');
 
       let selectedPath = null;
+      let lastOutputPath = null;
 
       function setStatus(message, type = 'info') {
         statusEl.textContent = message;
@@ -141,6 +156,8 @@
       selectBtn.addEventListener('click', async () => {
         setStatus('Abrindo seletor de arquivos...', 'info');
         selectedPathEl.textContent = '';
+        lastOutputPath = null;
+        openFolderBtn.disabled = true;
 
         try {
           const filePath = await window.api.selectImage();
@@ -172,18 +189,35 @@
 
         setStatus('Convertendo arquivo...', 'info');
         convertBtn.disabled = true;
+        openFolderBtn.disabled = true;
+        lastOutputPath = null;
 
         try {
           const outputPath = await window.api.convertImage(selectedPath);
+          lastOutputPath = outputPath;
           setStatus('Conversão concluída com sucesso!', 'ok');
           selectedPathEl.textContent =
             'Arquivo gerado em: ' + outputPath;
+          openFolderBtn.disabled = false;
         } catch (err) {
           console.error(err);
           setStatus('Erro na conversão: ' + err.message, 'error');
         } finally {
-          // permite converter de novo o mesmo arquivo
           convertBtn.disabled = false;
+        }
+      });
+
+      openFolderBtn.addEventListener('click', async () => {
+        if (!lastOutputPath) {
+          setStatus('Não há arquivo gerado para abrir.', 'error');
+          return;
+        }
+
+        try {
+          await window.api.openInFolder(lastOutputPath);
+        } catch (err) {
+          console.error(err);
+          setStatus('Erro ao abrir a pasta.', 'error');
         }
       });
     </script>

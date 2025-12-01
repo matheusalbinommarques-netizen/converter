@@ -1,5 +1,5 @@
 // main.js
-const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
 const path = require('path');
 const { convertPngToJpeg } = require('./core/conversionService');
 
@@ -42,6 +42,12 @@ function registerIpcHandlers() {
   ipcMain.handle('convert-image', async (event, inputPath) => {
     const outputPath = await convertPngToJpeg(inputPath);
     return outputPath;
+  });
+
+  // abrir pasta do arquivo gerado
+  ipcMain.handle('open-in-folder', async (event, targetPath) => {
+    if (!targetPath) return;
+    shell.showItemInFolder(targetPath);
   });
 }
 
