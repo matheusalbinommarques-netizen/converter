@@ -6,7 +6,7 @@
     <style>
       body {
         font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-        background: #111827;
+        background: #0f172a;
         color: #e5e7eb;
         display: flex;
         align-items: center;
@@ -20,10 +20,17 @@
         border-radius: 16px;
         box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
         text-align: center;
+        max-width: 520px;
       }
       h1 {
         margin: 0 0 8px;
-        font-size: 1.6rem;
+        font-size: 1.8rem;
+      }
+      h2 {
+        margin: 0 0 4px;
+        font-size: 1rem;
+        font-weight: 500;
+        opacity: 0.9;
       }
       p {
         margin: 4px 0;
@@ -40,14 +47,145 @@
         text-transform: uppercase;
         letter-spacing: 0.06em;
       }
+      .actions {
+        margin-top: 20px;
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      button {
+        border: none;
+        padding: 10px 16px;
+        border-radius: 999px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        font-weight: 500;
+        background: #22c55e;
+        color: #022c22;
+        box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+        transition: transform 0.08s ease, box-shadow 0.08s ease, opacity 0.08s ease;
+      }
+      button.secondary {
+        background: #111827;
+        color: #e5e7eb;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.6);
+      }
+      button:disabled {
+        opacity: 0.6;
+        cursor: default;
+        box-shadow: none;
+        transform: none;
+      }
+      button:hover:not(:disabled) {
+        transform: translateY(-1px);
+        box-shadow: 0 14px 30px rgba(16, 185, 129, 0.4);
+      }
+      button.secondary:hover:not(:disabled) {
+        box-shadow: 0 14px 30px rgba(0, 0, 0, 0.8);
+      }
+      #status {
+        margin-top: 16px;
+        font-size: 0.9rem;
+        min-height: 1.4em;
+        word-break: break-all;
+      }
+      #status.ok {
+        color: #22c55e;
+      }
+      #status.error {
+        color: #f97373;
+      }
+      #status.info {
+        color: #e5e7eb;
+      }
+      .path {
+        font-size: 0.8rem;
+        opacity: 0.8;
+        margin-top: 4px;
+      }
     </style>
   </head>
   <body>
     <div class="card">
       <h1>Conversor de Arquivos Universal</h1>
-      <p>MVP Desktop – Fase 1</p>
-      <p>Primeiro passo: app desktop rodando em Electron 🎉</p>
-      <div class="tag">Hello, World</div>
+      <h2>MVP Desktop – Fase 2</h2>
+      <p>Primeira funcionalidade real: converter imagens PNG/JPG para JPG.</p>
+
+      <div class="tag">imagem → jpg</div>
+
+      <div class="actions">
+        <button id="select-file">Escolher imagem (PNG/JPG)</button>
+        <button id="convert-btn" class="secondary" disabled>
+          Converter para JPG
+        </button>
+      </div>
+
+      <div id="status" class="info"></div>
+      <div id="selected-path" class="path"></div>
     </div>
+
+    <script>
+      const selectBtn = document.getElementById('select-file');
+      const convertBtn = document.getElementById('convert-btn');
+      const statusEl = document.getElementById('status');
+      const selectedPathEl = document.getElementById('selected-path');
+
+      let selectedPath = null;
+
+      function setStatus(message, type = 'info') {
+        statusEl.textContent = message;
+        statusEl.className = type;
+      }
+
+      selectBtn.addEventListener('click', async () => {
+        setStatus('Abrindo seletor de arquivos...', 'info');
+        selectedPathEl.textContent = '';
+
+        try {
+          const filePath = await window.api.selectImage();
+
+          if (!filePath) {
+            setStatus('Nenhum arquivo selecionado.', 'info');
+            selectedPath = null;
+            convertBtn.disabled = true;
+            return;
+          }
+
+          selectedPath = filePath;
+          selectedPathEl.textContent = 'Arquivo selecionado: ' + filePath;
+          setStatus('Pronto para converter.', 'ok');
+          convertBtn.disabled = false;
+        } catch (err) {
+          console.error(err);
+          setStatus('Erro ao selecionar arquivo.', 'error');
+          selectedPath = null;
+          convertBtn.disabled = true;
+        }
+      });
+
+      convertBtn.addEventListener('click', async () => {
+        if (!selectedPath) {
+          setStatus('Selecione um arquivo primeiro.', 'error');
+          return;
+        }
+
+        setStatus('Convertendo arquivo...', 'info');
+        convertBtn.disabled = true;
+
+        try {
+          const outputPath = await window.api.convertImage(selectedPath);
+          setStatus('Conversão concluída com sucesso!', 'ok');
+          selectedPathEl.textContent =
+            'Arquivo gerado em: ' + outputPath;
+        } catch (err) {
+          console.error(err);
+          setStatus('Erro na conversão: ' + err.message, 'error');
+        } finally {
+          // permite converter de novo o mesmo arquivo
+          convertBtn.disabled = false;
+        }
+      });
+    </script>
   </body>
 </html>

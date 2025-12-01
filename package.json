@@ -4,8 +4,9 @@
   "description": "MVP do Conversor de Arquivos Universal (app desktop)",
   "main": "main.js",
   "scripts": {
-    "start": "electron .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "npx electron .",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "test-convert-image": "node samples/test-image-conversion.js"
   },
   "repository": {
     "type": "git",
@@ -18,5 +19,11 @@
   "bugs": {
     "url": "https://github.com/matheusalbinommarques-netizen/converter/issues"
   },
-  "homepage": "https://github.com/matheusalbinommarques-netizen/converter#readme"
+  "homepage": "https://github.com/matheusalbinommarques-netizen/converter#readme",
+  "dependencies": {
+    "sharp": "^0.34.5"
+  },
+  "devDependencies": {
+    "electron": "^39.2.4"
+  }
 }

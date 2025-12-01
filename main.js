@@ -1,22 +1,53 @@
 // main.js
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
+const { convertPngToJpeg } = require('./core/conversionService');
 
 function createWindow() {
   const win = new BrowserWindow({
     width: 1000,
     height: 700,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js')
+      preload: path.join(__dirname, 'preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false
     },
-    title: 'Conversor Universal - MVP'
+    title: 'Conversor de Arquivos Universal - MVP'
   });
 
   win.loadFile('index.html');
 }
 
+function registerIpcHandlers() {
+  // abrir seletor de arquivo
+  ipcMain.handle('select-image', async () => {
+    const result = await dialog.showOpenDialog({
+      properties: ['openFile'],
+      filters: [
+        {
+          name: 'Imagens',
+          extensions: ['png', 'jpg', 'jpeg']
+        }
+      ]
+    });
+
+    if (result.canceled || !result.filePaths.length) {
+      return null;
+    }
+
+    return result.filePaths[0];
+  });
+
+  // converter a imagem selecionada
+  ipcMain.handle('convert-image', async (event, inputPath) => {
+    const outputPath = await convertPngToJpeg(inputPath);
+    return outputPath;
+  });
+}
+
 app.whenReady().then(() => {
   createWindow();
+  registerIpcHandlers();
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
