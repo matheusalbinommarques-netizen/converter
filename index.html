@@ -4,50 +4,739 @@
     <meta charset="UTF-8" />
     <title>Conversor de Arquivos Universal - MVP</title>
     <style>
+      * {
+        box-sizing: border-box;
+      }
       body {
         font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-        background: #111827;
+        background: #020617;
         color: #e5e7eb;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 100vh;
         margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: stretch;
+        min-height: 100vh;
       }
-      .card {
-        background: #1f2937;
-        padding: 24px 32px;
-        border-radius: 16px;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-        text-align: center;
+      .app {
+        width: 100%;
+        max-width: 1080px;
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
       }
-      h1 {
-        margin: 0 0 8px;
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+      }
+      header h1 {
+        margin: 0;
         font-size: 1.6rem;
       }
-      p {
-        margin: 4px 0;
-        opacity: 0.85;
+      header p {
+        margin: 0;
+        font-size: 0.9rem;
+        opacity: 0.8;
       }
       .tag {
         display: inline-block;
-        margin-top: 12px;
         padding: 4px 10px;
         border-radius: 999px;
         background: #10b98122;
         border: 1px solid #10b981;
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         text-transform: uppercase;
         letter-spacing: 0.06em;
+      }
+      main {
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        gap: 16px;
+        align-items: flex-start;
+      }
+      .panel {
+        background: #020617;
+        border-radius: 16px;
+        border: 1px solid #1f2937;
+        padding: 16px 18px;
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.4);
+      }
+      .panel h2 {
+        margin: 0 0 8px;
+        font-size: 1rem;
+      }
+      .panel p {
+        margin: 0;
+        font-size: 0.84rem;
+        opacity: 0.85;
+      }
+      label {
+        display: block;
+        margin-top: 12px;
+        margin-bottom: 4px;
+        font-size: 0.85rem;
+        opacity: 0.9;
+      }
+      select,
+      input[type="number"],
+      input[type="text"] {
+        width: 100%;
+        padding: 8px 10px;
+        border-radius: 999px;
+        border: 1px solid #374151;
+        background: #020617;
+        color: #e5e7eb;
+        font-size: 0.9rem;
+        outline: none;
+      }
+      select:focus,
+      input[type="number"]:focus,
+      input[type="text"]:focus {
+        border-color: #22c55e;
+      }
+      .small-row {
+        display: flex;
+        gap: 8px;
+        margin-top: 8px;
+      }
+      .small-row > div {
+        flex: 1;
+      }
+      .actions {
+        margin-top: 16px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      button {
+        border: none;
+        padding: 10px 16px;
+        border-radius: 999px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        font-weight: 500;
+        background: #22c55e;
+        color: #022c22;
+        box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+        transition: transform 0.08s ease, box-shadow 0.08s ease, opacity 0.08s ease;
+      }
+      button.secondary {
+        background: #111827;
+        color: #e5e7eb;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.6);
+      }
+      button.ghost {
+        background: transparent;
+        border: 1px solid #4b5563;
+        color: #e5e7eb;
+        box-shadow: none;
+      }
+      button:disabled {
+        opacity: 0.55;
+        cursor: default;
+        box-shadow: none;
+        transform: none;
+      }
+      button:hover:not(:disabled) {
+        transform: translateY(-1px);
+        box-shadow: 0 14px 30px rgba(16, 185, 129, 0.4);
+      }
+      button.secondary:hover:not(:disabled) {
+        box-shadow: 0 14px 30px rgba(0, 0, 0, 0.8);
+      }
+      button.ghost:hover:not(:disabled) {
+        box-shadow: none;
+        background: rgba(15, 23, 42, 0.8);
+      }
+      .status-bar {
+        margin-top: 8px;
+        font-size: 0.82rem;
+        min-height: 1.2em;
+      }
+      .status-bar.ok {
+        color: #22c55e;
+      }
+      .status-bar.error {
+        color: #f97373;
+      }
+      .status-bar.info {
+        color: #e5e7eb;
+      }
+      .tasks-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+        gap: 8px;
+      }
+      .tasks-header h2 {
+        margin: 0;
+        font-size: 1rem;
+      }
+      .tasks-summary {
+        font-size: 0.8rem;
+        opacity: 0.8;
+      }
+      .task-list {
+        margin-top: 4px;
+        border-radius: 12px;
+        border: 1px solid #111827;
+        background: #020617;
+        max-height: 460px;
+        overflow-y: auto;
+      }
+      .task-row {
+        display: grid;
+        grid-template-columns: 1.4fr 0.9fr 0.7fr 0.7fr;
+        gap: 8px;
+        padding: 8px 10px;
+        font-size: 0.82rem;
+        align-items: center;
+        border-bottom: 1px solid #020617;
+      }
+      .task-row:nth-child(2n) {
+        background: #020617;
+      }
+      .task-row:last-child {
+        border-bottom: none;
+      }
+      .task-kind {
+        font-size: 0.78rem;
+        opacity: 0.8;
+      }
+      .task-status {
+        font-weight: 500;
+      }
+      .task-status.pending {
+        color: #e5e7eb;
+      }
+      .task-status.running {
+        color: #fbbf24;
+      }
+      .task-status.completed {
+        color: #22c55e;
+      }
+      .task-status.failed {
+        color: #f97373;
+      }
+      .file-name {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .file-path {
+        font-size: 0.72rem;
+        opacity: 0.7;
+      }
+      .task-actions button {
+        width: 100%;
+        padding-inline: 8px;
+      }
+      footer {
+        margin-top: 4px;
+        font-size: 0.75rem;
+        opacity: 0.6;
+        text-align: right;
       }
     </style>
   </head>
   <body>
-    <div class="card">
-      <h1>Conversor de Arquivos Universal</h1>
-      <p>MVP Desktop – Fase 1</p>
-      <p>Primeiro passo: app desktop rodando em Electron 🎉</p>
-      <div class="tag">Hello, World</div>
+    <div class="app">
+      <header>
+        <div>
+          <h1>Conversor de Arquivos Universal</h1>
+          <p>MVP Desktop – vídeo ↔ spritesheet incluso</p>
+        </div>
+        <div class="tag">MVP</div>
+      </header>
+
+      <main>
+        <!-- Painel de opções -->
+        <section class="panel">
+          <h2>Configuração rápida</h2>
+          <p>Escolha o tipo de conversão, ajuste as opções e adicione arquivos à fila.</p>
+
+          <label for="conversion-kind">Tipo de conversão</label>
+          <select id="conversion-kind">
+            <option value="image">Imagem → Web (PNG/JPEG/WebP)</option>
+            <option value="video-mp3">Vídeo → MP3 (áudio)</option>
+            <option value="video-gif">Vídeo → GIF</option>
+            <option value="spritesheet">Spritesheet (múltiplas imagens)</option>
+            <option value="video-spritesheet">Vídeo → Spritesheet</option>
+            <option value="spritesheet-video">Spritesheet → Vídeo</option>
+          </select>
+
+          <!-- Opções para imagem -->
+          <div id="options-image">
+            <label for="image-format">Formato de saída (imagem)</label>
+            <select id="image-format">
+              <option value="jpg">JPG</option>
+              <option value="png">PNG</option>
+              <option value="webp" selected>WebP</option>
+            </select>
+
+            <div class="small-row">
+              <div>
+                <label for="image-width">Largura (px, opcional)</label>
+                <input
+                  id="image-width"
+                  type="number"
+                  min="1"
+                  placeholder="ex: 1024"
+                />
+              </div>
+              <div>
+                <label for="image-quality">Qualidade (1–100)</label>
+                <input
+                  id="image-quality"
+                  type="number"
+                  min="1"
+                  max="100"
+                  value="80"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Opções para vídeo→GIF -->
+          <div id="options-video-gif" style="display: none;">
+            <div class="small-row">
+              <div>
+                <label for="gif-width">Largura (px, opcional)</label>
+                <input
+                  id="gif-width"
+                  type="number"
+                  min="1"
+                  placeholder="ex: 480"
+                />
+              </div>
+              <div>
+                <label for="gif-fps">FPS (quadros/s)</label>
+                <input
+                  id="gif-fps"
+                  type="number"
+                  min="1"
+                  max="30"
+                  value="12"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Opções para spritesheet (imagens) -->
+          <div id="options-spritesheet" style="display: none;">
+            <div class="small-row">
+              <div>
+                <label for="sheet-columns">Colunas (opcional)</label>
+                <input
+                  id="sheet-columns"
+                  type="number"
+                  min="1"
+                  placeholder="auto"
+                />
+              </div>
+              <div>
+                <label for="sheet-name">Nome da sheet (opcional)</label>
+                <input
+                  id="sheet-name"
+                  type="text"
+                  placeholder="spritesheet"
+                />
+              </div>
+            </div>
+            <p style="margin-top:8px;font-size:0.8rem;opacity:0.8;">
+              Use imagens do mesmo tamanho para melhores resultados. Será gerado um PNG + JSON.
+            </p>
+          </div>
+
+          <!-- Opções para vídeo → spritesheet -->
+          <div id="options-video-spritesheet" style="display: none;">
+            <div class="small-row">
+              <div>
+                <label for="vs-width">Largura (px, opcional)</label>
+                <input
+                  id="vs-width"
+                  type="number"
+                  min="1"
+                  placeholder="ex: 480"
+                />
+              </div>
+              <div>
+                <label for="vs-frames">Qtd. frames (opcional)</label>
+                <input
+                  id="vs-frames"
+                  type="number"
+                  min="1"
+                  placeholder="ex: 16"
+                />
+              </div>
+            </div>
+            <div class="small-row">
+              <div>
+                <label for="vs-columns">Colunas (opcional)</label>
+                <input
+                  id="vs-columns"
+                  type="number"
+                  min="1"
+                  placeholder="auto"
+                />
+              </div>
+              <div>
+                <label for="vs-name">Nome da sheet (opcional)</label>
+                <input
+                  id="vs-name"
+                  type="text"
+                  placeholder="video_sheet"
+                />
+              </div>
+            </div>
+            <p style="margin-top:8px;font-size:0.8rem;opacity:0.8;">
+              Frames serão extraídos do vídeo, redimensionados (se você informar largura) e combinados em PNG + JSON.
+            </p>
+          </div>
+
+          <!-- Opções para spritesheet → vídeo -->
+          <div id="options-spritesheet-video" style="display: none;">
+            <div class="small-row">
+              <div>
+                <label for="sv-fps">FPS (quadros/s)</label>
+                <input
+                  id="sv-fps"
+                  type="number"
+                  min="1"
+                  max="60"
+                  value="12"
+                />
+              </div>
+            </div>
+            <p style="margin-top:8px;font-size:0.8rem;opacity:0.8;">
+              Usa a spritesheet (PNG) + JSON gerados pelo próprio app para reconstruir um vídeo MP4.
+            </p>
+          </div>
+
+          <div class="actions">
+            <button id="add-files-btn">Adicionar arquivos</button>
+            <button id="clear-tasks-btn" class="ghost">Limpar lista</button>
+          </div>
+
+          <div id="status-bar" class="status-bar info"></div>
+        </section>
+
+        <!-- Painel de tarefas -->
+        <section class="panel">
+          <div class="tasks-header">
+            <h2>Fila de conversão</h2>
+            <div class="tasks-summary" id="tasks-summary">
+              Nenhuma tarefa ainda.
+            </div>
+          </div>
+
+          <div class="task-list" id="task-list">
+            <div class="task-row">
+              <div>
+                <div class="file-name">Nenhuma tarefa na fila.</div>
+                <div class="file-path">Use “Adicionar arquivos” para começar.</div>
+              </div>
+              <div class="task-kind"></div>
+              <div class="task-status"></div>
+              <div class="task-actions"></div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        Engine de imagem, vídeo, GIF e spritesheet (incluindo vídeo↔spritesheet) conectada via QueueManager.
+      </footer>
     </div>
+
+    <script>
+      const kindSelect = document.getElementById('conversion-kind');
+      const optionsImage = document.getElementById('options-image');
+      const optionsVideoGif = document.getElementById('options-video-gif');
+      const optionsSpritesheet = document.getElementById('options-spritesheet');
+      const optionsVideoSpritesheet = document.getElementById('options-video-spritesheet');
+      const optionsSpritesheetVideo = document.getElementById('options-spritesheet-video');
+
+      const imageFormatEl = document.getElementById('image-format');
+      const imageWidthEl = document.getElementById('image-width');
+      const imageQualityEl = document.getElementById('image-quality');
+
+      const gifWidthEl = document.getElementById('gif-width');
+      const gifFpsEl = document.getElementById('gif-fps');
+
+      const sheetColumnsEl = document.getElementById('sheet-columns');
+      const sheetNameEl = document.getElementById('sheet-name');
+
+      const vsWidthEl = document.getElementById('vs-width');
+      const vsFramesEl = document.getElementById('vs-frames');
+      const vsColumnsEl = document.getElementById('vs-columns');
+      const vsNameEl = document.getElementById('vs-name');
+
+      const svFpsEl = document.getElementById('sv-fps');
+
+      const addFilesBtn = document.getElementById('add-files-btn');
+      const clearTasksBtn = document.getElementById('clear-tasks-btn');
+      const statusBar = document.getElementById('status-bar');
+      const taskListEl = document.getElementById('task-list');
+      const tasksSummaryEl = document.getElementById('tasks-summary');
+
+      let tasks = [];
+
+      function setStatus(message, type = 'info') {
+        statusBar.textContent = message;
+        statusBar.className = 'status-bar ' + type;
+      }
+
+      function getCurrentOptions() {
+        const kind = kindSelect.value;
+
+        if (kind === 'image') {
+          const targetFormat = imageFormatEl.value;
+          const width = imageWidthEl.value ? Number(imageWidthEl.value) : undefined;
+          const quality = imageQualityEl.value ? Number(imageQualityEl.value) : undefined;
+
+          return {
+            targetFormat,
+            width,
+            quality,
+          };
+        }
+
+        if (kind === 'video-gif') {
+          const width = gifWidthEl.value ? Number(gifWidthEl.value) : undefined;
+          const fps = gifFpsEl.value ? Number(gifFpsEl.value) : undefined;
+
+          return {
+            width,
+            fps,
+          };
+        }
+
+        if (kind === 'spritesheet') {
+          const columns = sheetColumnsEl.value
+            ? Number(sheetColumnsEl.value)
+            : undefined;
+          const outputName = sheetNameEl.value || undefined;
+
+          return {
+            columns,
+            outputName,
+          };
+        }
+
+        if (kind === 'video-spritesheet') {
+          const width = vsWidthEl.value ? Number(vsWidthEl.value) : undefined;
+          const frameCount = vsFramesEl.value ? Number(vsFramesEl.value) : undefined;
+          const columns = vsColumnsEl.value ? Number(vsColumnsEl.value) : undefined;
+          const outputName = vsNameEl.value || undefined;
+
+          return {
+            width,
+            frameCount,
+            columns,
+            outputName,
+          };
+        }
+
+        if (kind === 'spritesheet-video') {
+          const fps = svFpsEl.value ? Number(svFpsEl.value) : 12;
+          return { fps };
+        }
+
+        // video-mp3 (sem opções por enquanto)
+        return {};
+      }
+
+      function updateOptionsVisibility() {
+        const kind = kindSelect.value;
+        optionsImage.style.display = kind === 'image' ? 'block' : 'none';
+        optionsVideoGif.style.display = kind === 'video-gif' ? 'block' : 'none';
+        optionsSpritesheet.style.display = kind === 'spritesheet' ? 'block' : 'none';
+        optionsVideoSpritesheet.style.display =
+          kind === 'video-spritesheet' ? 'block' : 'none';
+        optionsSpritesheetVideo.style.display =
+          kind === 'spritesheet-video' ? 'block' : 'none';
+      }
+
+      function getFileName(fullPath) {
+        if (!fullPath) return '';
+        const parts = fullPath.split(/[/\\]/);
+        return parts[parts.length - 1];
+      }
+
+      function renderTasks() {
+        if (!tasks.length) {
+          taskListEl.innerHTML = `
+            <div class="task-row">
+              <div>
+                <div class="file-name">Nenhuma tarefa na fila.</div>
+                <div class="file-path">Use “Adicionar arquivos” para começar.</div>
+              </div>
+              <div class="task-kind"></div>
+              <div class="task-status"></div>
+              <div class="task-actions"></div>
+            </div>
+          `;
+          tasksSummaryEl.textContent = 'Nenhuma tarefa ainda.';
+          return;
+        }
+
+        const total = tasks.length;
+        const completed = tasks.filter((t) => t.status === 'completed').length;
+        const failed = tasks.filter((t) => t.status === 'failed').length;
+        const running = tasks.filter((t) => t.status === 'running').length;
+
+        tasksSummaryEl.textContent =
+          `Total: ${total} · Em andamento: ${running} · ` +
+          `Concluídas: ${completed} · Falharam: ${failed}`;
+
+        taskListEl.innerHTML = '';
+
+        for (const task of tasks) {
+          const row = document.createElement('div');
+          row.className = 'task-row';
+
+          const inputPath = task.inputPaths && task.inputPaths[0];
+
+          const resultPath =
+            task.resultPaths && task.resultPaths.length > 0
+              ? task.resultPaths[0]
+              : null;
+
+          const colFile = document.createElement('div');
+          const fileNameEl = document.createElement('div');
+          fileNameEl.className = 'file-name';
+
+          if (task.kind === 'spritesheet' && task.inputPaths) {
+            const extra =
+              task.inputPaths.length > 1 ? ` (+${task.inputPaths.length - 1})` : '';
+            fileNameEl.textContent = getFileName(inputPath) + extra;
+          } else {
+            fileNameEl.textContent = getFileName(inputPath);
+          }
+
+          const filePathEl = document.createElement('div');
+          filePathEl.className = 'file-path';
+          filePathEl.textContent = inputPath || '';
+
+          colFile.appendChild(fileNameEl);
+          colFile.appendChild(filePathEl);
+
+          const colKind = document.createElement('div');
+          colKind.className = 'task-kind';
+          colKind.textContent = task.kind;
+
+          const colStatus = document.createElement('div');
+          colStatus.className = 'task-status ' + (task.status || 'pending');
+          colStatus.textContent = task.status || 'pending';
+
+          const colActions = document.createElement('div');
+          colActions.className = 'task-actions';
+
+          if (task.status === 'completed' && resultPath) {
+            const openBtn = document.createElement('button');
+            openBtn.className = 'ghost';
+            openBtn.textContent = 'Abrir pasta';
+            openBtn.addEventListener('click', () => {
+              window.api.openInFolder(resultPath);
+            });
+            colActions.appendChild(openBtn);
+          }
+
+          row.appendChild(colFile);
+          row.appendChild(colKind);
+          row.appendChild(colStatus);
+          row.appendChild(colActions);
+
+          taskListEl.appendChild(row);
+        }
+      }
+
+      function mergeTasks(newTasks) {
+        for (const t of newTasks) {
+          const idx = tasks.findIndex((x) => x.id === t.id);
+          if (idx === -1) {
+            tasks.push(t);
+          } else {
+            tasks[idx] = t;
+          }
+        }
+        renderTasks();
+      }
+
+      kindSelect.addEventListener('change', () => {
+        updateOptionsVisibility();
+      });
+
+      addFilesBtn.addEventListener('click', async () => {
+        const kind = kindSelect.value;
+        setStatus('Abrindo seletor de arquivos...', 'info');
+
+        try {
+          const filePaths = await window.api.chooseFiles(kind);
+          if (!filePaths || !filePaths.length) {
+            setStatus('Nenhum arquivo selecionado.', 'info');
+            return;
+          }
+
+          const options = getCurrentOptions();
+
+          setStatus(`Adicionando ${filePaths.length} arquivo(s) à fila...`, 'info');
+
+          const newTasks = await window.api.enqueueTasks({
+            kind,
+            filePaths,
+            options,
+          });
+
+          mergeTasks(newTasks);
+          setStatus('Tarefas adicionadas. A fila está processando.', 'ok');
+        } catch (err) {
+          console.error(err);
+          setStatus('Erro ao adicionar tarefas: ' + err.message, 'error');
+        }
+      });
+
+      clearTasksBtn.addEventListener('click', () => {
+        tasks = [];
+        renderTasks();
+        setStatus(
+          'Lista limpa. Tarefas em processamento continuam em background.',
+          'info'
+        );
+      });
+
+      window.api.onQueueEvent((data) => {
+        if (!data) return;
+
+        const task = data.task;
+
+        if (data.type === 'task-failed' && data.errorMessage && task) {
+          mergeTasks([task]);
+          setStatus('Uma tarefa falhou: ' + data.errorMessage, 'error');
+          return;
+        }
+
+        if (data.type === 'idle') {
+          setStatus('Fila ociosa. Todas as tarefas foram processadas.', 'info');
+          return;
+        }
+
+        if (!task || !task.id) return;
+
+        mergeTasks([task]);
+      });
+
+      updateOptionsVisibility();
+      renderTasks();
+      setStatus(
+        'Pronto para converter arquivos. Escolha o tipo e adicione arquivos.',
+        'info'
+      );
+    </script>
   </body>
 </html>
