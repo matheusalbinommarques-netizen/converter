@@ -4,7 +4,10 @@ const path = require('path');
 
 const { QueueManager } = require('./core/queueManager');
 const { createTask } = require('./core/taskTypes');
-const { rememberLastPreset } = require('./infra/configService');
+const {
+  rememberLastPreset,
+  getLastPreset,
+} = require('./core/configService'); // ⬅️ ajustado para core
 
 let mainWindow = null;
 const queueManager = new QueueManager();
@@ -22,7 +25,6 @@ function createWindow() {
   });
 
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
-
 
   mainWindow.on('closed', () => {
     mainWindow = null;
@@ -68,7 +70,13 @@ function getFileFiltersForKind(kind) {
 // ==== IPC HANDLERS ====
 
 // Abre diálogo de seleção de arquivos
-ipcMain.handle('choose-files', async (event, kind) => {
+ipcMain.handle('choose-files', async (event, payload) => {
+  // preload manda { kind }, mas se algum lugar mandar string, tratamos também
+  const kind =
+    typeof payload === 'string' ? payload : payload && payload.kind
+      ? payload.kind
+      : null;
+
   const filters = getFileFiltersForKind(kind);
 
   const result = await dialog.showOpenDialog(mainWindow, {
@@ -92,7 +100,7 @@ ipcMain.handle('enqueue-tasks', async (event, payload) => {
     throw new Error('Parâmetros inválidos para enqueue-tasks.');
   }
 
-  // 🔹 Aqui entra o rememberLastPreset (Fase 3)
+  // 🔹 Lembrar último preset
   try {
     rememberLastPreset(kind, options || {});
   } catch (err) {
@@ -124,6 +132,35 @@ ipcMain.handle('enqueue-tasks', async (event, payload) => {
   }
 
   return newTasks;
+});
+
+// Expor último preset via IPC para a UI (usado pelo preload como "config-get-last-preset")
+ipcMain.handle('config-get-last-preset', async (event, payload) => {
+  try {
+    const kind =
+      typeof payload === 'string' ? payload : payload && payload.kind
+        ? payload.kind
+        : null;
+    if (!kind) return null;
+    return getLastPreset(kind);
+  } catch (err) {
+    console.warn('[main] Falha ao obter lastPreset:', err.message);
+    return null;
+  }
+});
+
+// Lembrar último preset via IPC (usado pelo preload como "config-remember-last-preset")
+ipcMain.handle('config-remember-last-preset', async (event, payload) => {
+  try {
+    const kind = payload && payload.kind ? payload.kind : null;
+    const options = payload && payload.options ? payload.options : {};
+    if (!kind) return false;
+    rememberLastPreset(kind, options);
+    return true;
+  } catch (err) {
+    console.warn('[main] Falha ao salvar lastPreset:', err.message);
+    return false;
+  }
 });
 
 // Abrir pasta do arquivo de saída

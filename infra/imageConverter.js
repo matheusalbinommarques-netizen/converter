@@ -1,105 +1,105 @@
 // infra/imageConverter.js
-const sharp = require('sharp');
-const path = require('path');
+// Conversões de imagem (PNG/JPG/WEBP etc.) usando sharp
+// Agora 100% integradas com outputService (Mídias convertidas).
+
 const fs = require('fs');
-const { resolveOutputDir } = require('./configService');
+const path = require('path');
+const sharp = require('sharp');
+const { getOutputDirForKind } = require('./outputService');
 
 /**
- * Converte uma imagem para um formato alvo com opções.
- *
- * @param {string} inputPath - Caminho do arquivo de entrada.
- * @param {object} options
- * @param {string} options.targetFormat - 'jpg' | 'jpeg' | 'png' | 'webp'
- * @param {number} [options.quality] - Qualidade (1–100) para formatos com compressão.
- * @param {number} [options.width] - Largura desejada (redimensiona mantendo proporção).
- * @param {string} [options.outputDir] - Pasta de saída (se não passar, usa regra do ConfigService).
- *
- * @returns {Promise<string>} - Caminho do arquivo gerado.
+ * Garante que o input existe.
  */
-async function convertImage(inputPath, options = {}) {
-  const { targetFormat, quality, width, outputDir } = options;
-
+function assertInputExists(inputPath) {
   if (!fs.existsSync(inputPath)) {
     throw new Error(`Arquivo de entrada não encontrado: ${inputPath}`);
   }
+}
 
+/**
+ * Converte uma imagem para JPEG “simples” (MVP antigo).
+ * Se outputDir não for passado, usa:
+ *   Downloads/Mídias convertidas/Imagens convertidas
+ */
+async function convertImageToJpeg(inputPath, outputDir) {
+  assertInputExists(inputPath);
+
+  const finalOutputDir = outputDir || getOutputDirForKind('image');
+
+  const baseName = path.basename(inputPath, path.extname(inputPath));
+  const outPath = path.join(finalOutputDir, `${baseName}.jpg`);
+
+  await sharp(inputPath)
+    .jpeg({
+      quality: 80,
+      mozjpeg: true,
+    })
+    .toFile(outPath);
+
+  return outPath;
+}
+
+/**
+ * Conversão genérica de imagem:
+ * - targetFormat: 'jpg' | 'jpeg' | 'png' | 'webp'
+ * - quality: 1–100 (opcional)
+ * - width: px (opcional)
+ * - outputDir: opcional (se não vier, vai para Imagens convertidas)
+ */
+async function convertImage(inputPath, options = {}) {
+  assertInputExists(inputPath);
+
+  const {
+    targetFormat = 'webp',
+    quality,
+    width,
+    outputDir,
+  } = options;
+
+  const normalizedFormat = String(targetFormat).toLowerCase();
   const allowedFormats = ['jpg', 'jpeg', 'png', 'webp'];
-  const fmt = String(targetFormat || '').toLowerCase();
 
-  if (!allowedFormats.includes(fmt)) {
+  if (!allowedFormats.includes(normalizedFormat)) {
     throw new Error(
-      `Formato alvo inválido: ${targetFormat}. Use: ${allowedFormats.join(', ')}`
+      `Formato de saída inválido: ${normalizedFormat}. Use: ${allowedFormats.join(
+        ', '
+      )}`
     );
   }
 
-  const parsed = path.parse(inputPath);
+  const finalOutputDir = outputDir || getOutputDirForKind('image');
 
-  // Usa config global + pasta de entrada como fallback
-  const targetDir = resolveOutputDir(parsed.dir, outputDir);
+  const baseName = path.basename(inputPath, path.extname(inputPath));
+  const ext =
+    normalizedFormat === 'jpeg' || normalizedFormat === 'jpg'
+      ? 'jpg'
+      : normalizedFormat;
+  const outPath = path.join(finalOutputDir, `${baseName}.${ext}`);
 
-  if (!fs.existsSync(targetDir)) {
-    fs.mkdirSync(targetDir, { recursive: true });
-  }
-
-  // Internamente o sharp usa "jpeg", mas queremos salvar como .jpg no nome do arquivo
-  const normalizedFormat = fmt === 'jpg' ? 'jpeg' : fmt;
-  const outExt = fmt === 'jpeg' || fmt === 'jpg' ? 'jpg' : fmt;
-
-  const outputPath = path.join(targetDir, `${parsed.name}.${outExt}`);
-
-  let instance = sharp(inputPath);
+  let pipeline = sharp(inputPath);
 
   if (width && Number.isFinite(width)) {
-    instance = instance.resize({
-      width: Math.round(width),
+    pipeline = pipeline.resize({
+      width: Math.max(1, Math.round(width)),
       withoutEnlargement: true,
     });
   }
 
-  let q;
-  if (quality && Number.isFinite(quality)) {
-    q = Math.max(1, Math.min(100, Math.round(quality)));
+  const formatOptions = {};
+  if (typeof quality === 'number' && quality > 0 && quality <= 100) {
+    formatOptions.quality = Math.round(quality);
   }
 
-  switch (normalizedFormat) {
-    case 'jpeg':
-      instance = instance.jpeg({
-        quality: q ?? 80,
-        mozjpeg: true,
-      });
-      break;
-    case 'png':
-      instance = instance.png({
-        compressionLevel: 9,
-      });
-      break;
-    case 'webp':
-      instance = instance.webp({
-        quality: q ?? 80,
-      });
-      break;
-    default:
-      throw new Error(`Formato alvo não suportado internamente: ${normalizedFormat}`);
-  }
+  pipeline = pipeline.toFormat(
+    normalizedFormat === 'jpeg' ? 'jpeg' : normalizedFormat,
+    formatOptions
+  );
 
-  await instance.toFile(outputPath);
-
-  return outputPath;
-}
-
-/**
- * Função de compatibilidade: converte qualquer coisa para JPG.
- * Ainda é usada pelo MVP da UI (não vamos quebrar isso agora).
- */
-async function convertImageToJpeg(inputPath, outputDir) {
-  return convertImage(inputPath, {
-    targetFormat: 'jpg',
-    quality: 80,
-    outputDir,
-  });
+  await pipeline.toFile(outPath);
+  return outPath;
 }
 
 module.exports = {
-  convertImage,
   convertImageToJpeg,
+  convertImage,
 };

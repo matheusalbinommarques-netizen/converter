@@ -2,9 +2,13 @@
 const fs = require('fs');
 const path = require('path');
 const { generateSpritesheet } = require('../infra/spritesheetGenerator');
+const { getOutputDirForKind } = require('../infra/outputService');
 
 /**
- * Regras de negócio para geração de spritesheet.
+ * Regras de negócio para geração de spritesheet (a partir de imagens).
+ *
+ * Saída padrão (quando options.outputDir não é informado):
+ *   Downloads/Mídias convertidas/Spritesheets criados
  */
 async function buildSpritesheetFromImages(imagePaths, options = {}) {
   if (!Array.isArray(imagePaths) || imagePaths.length === 0) {
@@ -18,7 +22,13 @@ async function buildSpritesheetFromImages(imagePaths, options = {}) {
     throw new Error('Nenhuma das imagens fornecidas existe.');
   }
 
-  const result = await generateSpritesheet(existing, options);
+  const finalOutputDir = options.outputDir || getOutputDirForKind('spritesheet');
+
+  const result = await generateSpritesheet(existing, {
+    ...options,
+    outputDir: finalOutputDir,
+  });
+
   return result;
 }
 

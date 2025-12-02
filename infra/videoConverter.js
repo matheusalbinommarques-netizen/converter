@@ -1,181 +1,236 @@
 // infra/videoConverter.js
+// Conversões de vídeo (→ MP3, → GIF, extração de frames) usando ffmpeg + sharp.
+// Integrado com outputService para salvar em:
+//   Downloads/Mídias convertidas/...
+
 const fs = require('fs');
 const path = require('path');
+const sharp = require('sharp');
 const ffmpeg = require('fluent-ffmpeg');
 const ffmpegStatic = require('ffmpeg-static');
 const ffprobeStatic = require('ffprobe-static');
-const { resolveOutputDir } = require('./configService');
+const { getOutputDirForKind } = require('./outputService');
 
 ffmpeg.setFfmpegPath(ffmpegStatic);
 ffmpeg.setFfprobePath(ffprobeStatic.path);
 
 /**
- * Vídeo -> MP3
+ * Garante que o input existe.
  */
-function convertVideoToMp3(inputPath, outputDir) {
-  return new Promise((resolve, reject) => {
-    if (!fs.existsSync(inputPath)) {
-      return reject(new Error(`Arquivo de entrada não encontrado: ${inputPath}`));
-    }
+function assertInputExists(inputPath) {
+  if (!fs.existsSync(inputPath)) {
+    throw new Error(`Arquivo de entrada não encontrado: ${inputPath}`);
+  }
+}
 
-    const parsed = path.parse(inputPath);
+/**
+ * Vídeo -> MP3
+ * Se outputDir não for passado, usa:
+ *   Downloads/Mídias convertidas/Vídeos e áudios criados
+ */
+async function convertVideoToMp3(inputPath, outputDir) {
+  assertInputExists(inputPath);
 
-    // Usa config global / pasta padrão
-    const targetDir = resolveOutputDir(parsed.dir, outputDir);
+  const finalOutputDir = outputDir || getOutputDirForKind('video-mp3');
 
-    if (!fs.existsSync(targetDir)) {
-      fs.mkdirSync(targetDir, { recursive: true });
-    }
+  const parsed = path.parse(inputPath);
+  const outPath = path.join(finalOutputDir, `${parsed.name}.mp3`);
 
-    const outputPath = path.join(targetDir, `${parsed.name}.mp3`);
-
+  await new Promise((resolve, reject) => {
     ffmpeg(inputPath)
       .noVideo()
       .audioCodec('libmp3lame')
       .on('error', (err) => {
-        reject(err);
+        reject(new Error(`Erro ao converter vídeo para MP3: ${err.message}`));
       })
       .on('end', () => {
-        resolve(outputPath);
+        resolve();
       })
-      .save(outputPath);
+      .save(outPath);
   });
+
+  return outPath;
 }
 
 /**
  * Vídeo -> GIF
+ * options:
+ *   - width: px (opcional)
+ *   - fps: frames/s (opcional)
+ *   - outputDir: opcional
+ *
+ * Se outputDir não for passado, usa:
+ *   Downloads/Mídias convertidas/Gifs criados
  */
-function convertVideoToGif(inputPath, options = {}) {
+async function convertVideoToGif(inputPath, options = {}) {
+  assertInputExists(inputPath);
+
   const { width, fps, outputDir } = options;
 
-  return new Promise((resolve, reject) => {
-    if (!fs.existsSync(inputPath)) {
-      return reject(new Error(`Arquivo de entrada não encontrado: ${inputPath}`));
+  const finalOutputDir = outputDir || getOutputDirForKind('video-gif');
+
+  const parsed = path.parse(inputPath);
+  const outPath = path.join(finalOutputDir, `${parsed.name}.gif`);
+
+  const filters = [];
+
+  if (width && Number.isFinite(width)) {
+    const w = Math.max(16, Math.round(width));
+    filters.push(`scale=${w}:-1:flags=lanczos`);
+  }
+
+  if (fps && Number.isFinite(fps)) {
+    const f = Math.max(1, Math.round(fps));
+    filters.push(`fps=${f}`);
+  }
+
+  await new Promise((resolve, reject) => {
+    const cmd = ffmpeg(inputPath);
+
+    if (filters.length > 0) {
+      cmd.videoFilters(filters.join(','));
     }
 
-    const parsed = path.parse(inputPath);
-
-    // Usa config global / pasta padrão
-    const targetDir = resolveOutputDir(parsed.dir, outputDir);
-
-    if (!fs.existsSync(targetDir)) {
-      fs.mkdirSync(targetDir, { recursive: true });
-    }
-
-    const outputPath = path.join(targetDir, `${parsed.name}.gif`);
-
-    let command = ffmpeg(inputPath);
-
-    if (width && Number.isFinite(width)) {
-      command = command.size(`${Math.round(width)}x?`);
-    }
-
-    if (fps && Number.isFinite(fps)) {
-      command = command.fps(Math.round(fps));
-    }
-
-    command
+    cmd
+      .outputOptions([
+        '-loop 0', // loop infinito
+      ])
       .on('error', (err) => {
-        reject(err);
+        reject(new Error(`Erro ao converter vídeo para GIF: ${err.message}`));
       })
       .on('end', () => {
-        resolve(outputPath);
+        resolve();
       })
-      .save(outputPath);
+      .save(outPath);
   });
+
+  return outPath;
 }
 
 /**
- * Lê FPS de um vídeo usando ffprobe.
+ * Extrai TODOS os frames de um vídeo em PNG.
+ *
+ * options:
+ *   - width: px opcional (redimensiona mantendo proporção)
+ *   - outputDir: diretório onde ficarão os frames
+ *
+ * Se outputDir não for passado, usa:
+ *   Downloads/Mídias convertidas/Spritesheets criados/<nome>_frames
  */
-function getVideoFps(inputPath) {
+async function extractAllFramesToPngs(inputPath, options = {}) {
+  assertInputExists(inputPath);
+
+  const { width, outputDir } = options;
+
+  const parsed = path.parse(inputPath);
+  const baseFramesDirRoot = outputDir || getOutputDirForKind('video-spritesheet');
+  const framesDir = path.join(baseFramesDirRoot, `${parsed.name}_frames`);
+
+  if (!fs.existsSync(framesDir)) {
+    fs.mkdirSync(framesDir, { recursive: true });
+  }
+
+  const inputMetadata = await ffprobePromise(inputPath);
+  const totalFrames = estimateTotalFrames(inputMetadata);
+
+  const pattern = path.join(framesDir, 'frame-%06d.png');
+
+  await new Promise((resolve, reject) => {
+    const cmd = ffmpeg(inputPath).output(pattern);
+
+    if (width && Number.isFinite(width)) {
+      const w = Math.max(16, Math.round(width));
+      cmd.videoFilters(`scale=${w}:-1:flags=lanczos`);
+    }
+
+    cmd
+      .on('error', (err) => {
+        reject(new Error(`Erro ao extrair frames de vídeo: ${err.message}`));
+      })
+      .on('end', () => {
+        resolve();
+      })
+      .run();
+  });
+
+  // Coleta todos os frames gerados
+  const files = fs
+    .readdirSync(framesDir)
+    .filter((f) => /^frame-\d+\.png$/.test(f))
+    .sort();
+
+  const framePaths = files.map((f) => path.join(framesDir, f));
+
+  if (!framePaths.length) {
+    throw new Error('Nenhum frame PNG foi gerado a partir do vídeo.');
+  }
+
+  return framePaths;
+}
+
+/**
+ * Obtém FPS aproximado do vídeo usando ffprobe.
+ */
+async function getVideoFps(inputPath) {
+  assertInputExists(inputPath);
+
+  const meta = await ffprobePromise(inputPath);
+  return extractFpsFromMeta(meta);
+}
+
+/**
+ * Helper: ffprobe em Promise.
+ */
+function ffprobePromise(inputPath) {
   return new Promise((resolve, reject) => {
-    ffmpeg.ffprobe(inputPath, (err, metadata) => {
-      if (err) return reject(err);
-
-      try {
-        const streams = metadata.streams || [];
-        const videoStream = streams.find((s) => s.codec_type === 'video');
-        if (!videoStream || !videoStream.r_frame_rate) {
-          return reject(new Error('Não foi possível determinar o FPS do vídeo.'));
-        }
-
-        const [num, den] = videoStream.r_frame_rate.split('/').map(Number);
-        if (!num || !den) {
-          return reject(new Error('FPS inválido retornado pelo ffprobe.'));
-        }
-
-        const fps = num / den;
-        resolve(fps);
-      } catch (error) {
-        reject(error);
+    ffmpeg.ffprobe(inputPath, (err, data) => {
+      if (err) {
+        return reject(err);
       }
+      resolve(data);
     });
   });
 }
 
 /**
- * Extrai TODOS os frames do vídeo para PNGs numerados.
- * Retorna lista de caminhos dos frames.
- *
- * ⚠️ Aqui **não** usamos resolveOutputDir porque é saída temporária
- * controlada pela camada de spritesheet (ela já decide a pasta).
+ * Extrai FPS de metadados do ffprobe.
  */
-function extractAllFramesToPngs(inputPath, options = {}) {
-  const { width, outputDir } = options;
+function extractFpsFromMeta(meta) {
+  if (!meta || !meta.streams) return null;
+  const videoStream = meta.streams.find((s) => s.codec_type === 'video');
+  if (!videoStream) return null;
 
-  return new Promise((resolve, reject) => {
-    if (!fs.existsSync(inputPath)) {
-      return reject(new Error(`Arquivo de entrada não encontrado: ${inputPath}`));
-    }
+  // Tenta r_frame_rate ou avg_frame_rate (formato "30000/1001", etc.)
+  const rateStr = videoStream.r_frame_rate || videoStream.avg_frame_rate;
+  if (!rateStr || rateStr === '0/0') return null;
 
-    const parsed = path.parse(inputPath);
-    const baseDir = outputDir || parsed.dir;
+  const [numStr, denStr] = rateStr.split('/');
+  const num = Number(numStr);
+  const den = Number(denStr || 1);
+  if (!Number.isFinite(num) || !Number.isFinite(den) || den === 0) {
+    return null;
+  }
 
-    if (!fs.existsSync(baseDir)) {
-      fs.mkdirSync(baseDir, { recursive: true });
-    }
+  const fps = num / den;
+  return fps && fps > 0 ? fps : null;
+}
 
-    // Subpasta específica para frames
-    const framesDir = path.join(baseDir, `${parsed.name}_frames`);
+/**
+ * Tenta estimar número total de frames (opcional, usado só pra debug/estatística).
+ */
+function estimateTotalFrames(meta) {
+  const fps = extractFpsFromMeta(meta);
+  const duration = meta.format && meta.format.duration
+    ? Number(meta.format.duration)
+    : null;
 
-    if (!fs.existsSync(framesDir)) {
-      fs.mkdirSync(framesDir, { recursive: true });
-    }
-
-    const framePattern = path.join(framesDir, 'frame_%05d.png');
-
-    let command = ffmpeg(inputPath);
-
-    if (width && Number.isFinite(width)) {
-      command = command.size(`${Math.round(width)}x?`);
-    }
-
-    command
-      .output(framePattern)
-      .on('error', (err) => {
-        reject(err);
-      })
-      .on('end', () => {
-        try {
-          const files = fs
-            .readdirSync(framesDir)
-            .filter((f) => f.toLowerCase().endsWith('.png'))
-            .sort()
-            .map((f) => path.join(framesDir, f));
-
-          resolve(files);
-        } catch (err2) {
-          reject(err2);
-        }
-      })
-      .run();
-  });
+  if (!fps || !duration) return null;
+  return Math.round(fps * duration);
 }
 
 module.exports = {
   convertVideoToMp3,
   convertVideoToGif,
-  getVideoFps,
   extractAllFramesToPngs,
+  getVideoFps,
 };

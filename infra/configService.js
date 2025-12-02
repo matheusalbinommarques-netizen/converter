@@ -1,36 +1,37 @@
 // infra/configService.js
 //
 // Serviço simples de configuração do usuário.
-// Armazena um JSON no home do usuário (ex.: C:\Users\seuuser\.universal-converter-config.json)
+// Armazena um JSON no diretório do usuário (ex.: C:\Users\seuuser\.converter\config.json)
 //
 // Mantém:
-// - Pasta padrão de saída (custom) ou "mesma pasta do arquivo de entrada"
+// - Pasta padrão de saída (custom) ou "mesma pasta do arquivo de entrada" (apenas legado)
 // - Último preset usado (kind + options)
-// - Outras preferências simples no futuro
 
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-const CONFIG_FILE_NAME = '.universal-converter-config.json';
-const CONFIG_PATH = path.join(os.homedir(), CONFIG_FILE_NAME);
+const CONFIG_DIR = path.join(os.homedir(), '.converter');
+const CONFIG_PATH = path.join(CONFIG_DIR, 'config.json');
+
+// Pasta Downloads do usuário (funciona em Windows/macOS/Linux, nome da pasta é "Downloads")
+const DOWNLOADS_DIR = path.join(os.homedir(), 'Downloads');
+
+// Pasta padrão que o app vai usar quando o usuário ainda não configurou nada
+// Ex.: C:\Users\<usuario>\Downloads\Imagens convertidas
+const DEFAULT_OUTPUT_DIR = path.join(DOWNLOADS_DIR, 'Imagens convertidas');
 
 const DEFAULT_CONFIG = {
   version: 1,
   // outputDirMode:
-  //  - "same-as-input": salva na mesma pasta do arquivo original
+  //  - "same-as-input": legado, hoje preferimos criar uma pasta padrão do app
   //  - "custom": usa customOutputDir
   outputDirMode: 'same-as-input',
   customOutputDir: '',
-  // Último preset usado na UI (tipo de conversão + opções)
-  lastPreset: null, // { kind: string, options: object }
+  lastPreset: null,
   lastPresetUpdatedAt: null, // ISO string
 };
 
-/**
- * Lê o arquivo de configuração do disco.
- * Se não existir ou estiver inválido, retorna DEFAULT_CONFIG.
- */
 function readConfigFromDisk() {
   try {
     if (!fs.existsSync(CONFIG_PATH)) {
@@ -40,7 +41,6 @@ function readConfigFromDisk() {
     const raw = fs.readFileSync(CONFIG_PATH, 'utf8');
     const parsed = JSON.parse(raw);
 
-    // Merge com defaults, para garantir campos novos
     return {
       ...DEFAULT_CONFIG,
       ...parsed,
@@ -51,14 +51,10 @@ function readConfigFromDisk() {
   }
 }
 
-/**
- * Escreve a configuração no disco (merge com a atual).
- */
 function writeConfigToDisk(newConfig) {
   try {
-    const dir = path.dirname(CONFIG_PATH);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
+    if (!fs.existsSync(CONFIG_DIR)) {
+      fs.mkdirSync(CONFIG_DIR, { recursive: true });
     }
 
     fs.writeFileSync(CONFIG_PATH, JSON.stringify(newConfig, null, 2), 'utf8');
@@ -67,94 +63,135 @@ function writeConfigToDisk(newConfig) {
   }
 }
 
-/**
- * Retorna a configuração atual (já mergeada com defaults).
- */
 function getConfig() {
   return readConfigFromDisk();
 }
 
-/**
- * Atualiza a configuração parcialmente.
- * Exemplo:
- *   updateConfig({ outputDirMode: 'custom', customOutputDir: 'D:/Saidas' })
- */
-function updateConfig(partial) {
-  const current = readConfigFromDisk();
-  const merged = {
+function updateConfig(patch) {
+  const current = getConfig();
+  const next = {
     ...current,
-    ...partial,
+    ...patch,
   };
-  writeConfigToDisk(merged);
-  return merged;
+  writeConfigToDisk(next);
+  return next;
 }
 
-/**
- * Define a pasta padrão de saída.
- *  - mode = "same-as-input" | "custom"
- *  - customDir só é usado quando mode === "custom"
- */
 function setOutputDirectory(mode, customDir) {
-  const safeMode =
-    mode === 'custom' || mode === 'same-as-input' ? mode : 'same-as-input';
+  const validModes = ['same-as-input', 'custom'];
+  const finalMode = validModes.includes(mode) ? mode : 'same-as-input';
 
-  const trimmed =
-    typeof customDir === 'string' ? customDir.trim() : '';
+  const patch = {
+    outputDirMode: finalMode,
+  };
 
-  return updateConfig({
-    outputDirMode: safeMode,
-    customOutputDir: trimmed,
-  });
+  if (finalMode === 'custom' && typeof customDir === 'string' && customDir.trim().length > 0) {
+    patch.customOutputDir = customDir.trim();
+  } else if (finalMode === 'same-as-input') {
+    patch.customOutputDir = '';
+  }
+
+  return updateConfig(patch);
 }
 
-/**
- * Lembra o último preset usado (tipo de conversão + opções).
- * Ex.: rememberLastPreset('image', { targetFormat: 'webp', width: 1024, quality: 80 })
- */
 function rememberLastPreset(kind, options) {
-  const now = new Date().toISOString();
-  return updateConfig({
+  if (!kind) return;
+
+  const cleanedOptions = {};
+  if (options && typeof options === 'object') {
+    for (const [key, value] of Object.entries(options)) {
+      if (value !== undefined) {
+        cleanedOptions[key] = value;
+      }
+    }
+  }
+
+  const patch = {
     lastPreset: {
       kind,
-      options: options || {},
+      options: cleanedOptions,
     },
-    lastPresetUpdatedAt: now,
-  });
+    lastPresetUpdatedAt: new Date().toISOString(),
+  };
+
+  return updateConfig(patch);
+}
+
+function getLastPreset(kind) {
+  if (!kind) return null;
+  const cfg = getConfig();
+  if (!cfg.lastPreset || typeof cfg.lastPreset !== 'object') return null;
+  if (cfg.lastPreset.kind !== kind) return null;
+  return cfg.lastPreset.options || null;
+}
+
+function ensureDirExists(dir) {
+  try {
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+  } catch (err) {
+    console.warn('[ConfigService] Falha ao criar pasta de saída:', err.message);
+  }
 }
 
 /**
- * Decide a pasta de saída com base:
- *  - em um outputDir explícito (se for passado),
- *  - ou na configuração do usuário,
- *  - ou, no fallback, na pasta do arquivo de entrada.
+ * Resolve diretório de saída para um arquivo de entrada.
  *
- * @param {string} inputDir - pasta do arquivo de entrada
- * @param {string | undefined} explicitOutputDir - pasta passada explicitamente pelo chamador
+ * Regras:
+ * - Se o usuário já tiver configurado um customOutputDir (outputDirMode === "custom"),
+ *   e não for o caminho antigo de dev (saidas-test), usa esse caminho.
+ * - Caso contrário, o app usa:
+ *     <home>/Downloads/Imagens convertidas
+ *   cria essa pasta se não existir, grava na config e passa a usar sempre.
  */
-function resolveOutputDir(inputDir, explicitOutputDir) {
-  if (explicitOutputDir && explicitOutputDir.trim().length > 0) {
-    return explicitOutputDir;
-  }
-
+function resolveOutputDirectory(inputPath) {
   const cfg = getConfig();
 
+  // Detecta caminho antigo de dev (D:\...\converter\saidas-test) para poder migrar
+  const isDevSaidasTest =
+    typeof cfg.customOutputDir === 'string' &&
+    cfg.customOutputDir.includes(path.join('converter', 'saidas-test'));
+
+  // 1) Se já existe uma pasta custom válida e não é o "saidas-test", respeita
   if (
     cfg.outputDirMode === 'custom' &&
-    cfg.customOutputDir &&
-    cfg.customOutputDir.trim().length > 0
+    typeof cfg.customOutputDir === 'string' &&
+    cfg.customOutputDir.trim().length > 0 &&
+    !isDevSaidasTest
   ) {
-    return cfg.customOutputDir.trim();
+    const dir = cfg.customOutputDir.trim();
+    ensureDirExists(dir);
+    return dir;
   }
 
-  // fallback: mesma pasta do arquivo de entrada
-  return inputDir;
+  // 2) Caso contrário, define a pasta padrão em Downloads/Imagens convertidas
+  const dir = DEFAULT_OUTPUT_DIR;
+  ensureDirExists(dir);
+
+  // Atualiza config para passar a usar sempre essa pasta daqui pra frente
+  updateConfig({
+    outputDirMode: 'custom',
+    customOutputDir: dir,
+  });
+
+  return dir;
+}
+
+// Alias com o nome antigo usado pelo QueueManager
+function resolveOutputDir(inputPath) {
+  return resolveOutputDirectory(inputPath);
 }
 
 module.exports = {
+  CONFIG_DIR,
   CONFIG_PATH,
+  DEFAULT_CONFIG,
   getConfig,
   updateConfig,
   setOutputDirectory,
   rememberLastPreset,
+  getLastPreset,
+  resolveOutputDirectory,
   resolveOutputDir,
 };
