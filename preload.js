@@ -2,11 +2,18 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('api', {
-  selectImage: () => ipcRenderer.invoke('select-image'),
-  convertImage: (inputPath) => ipcRenderer.invoke('convert-image', inputPath),
-  openInFolder: (targetPath) => ipcRenderer.invoke('open-in-folder', targetPath)
+  chooseFiles: (kind) => ipcRenderer.invoke('choose-files', { kind }),
+  enqueueTasks: (payload) => ipcRenderer.invoke('enqueue-tasks', payload),
+  openInFolder: (targetPath) => ipcRenderer.invoke('open-in-folder', targetPath),
+  onQueueEvent: (callback) => {
+    ipcRenderer.on('queue-event', (_event, data) => {
+      if (typeof callback === 'function') {
+        callback(data);
+      }
+    });
+  }
 });
 
 window.addEventListener('DOMContentLoaded', () => {
-  console.log('Preload carregado - API exposta em window.api');
+  console.log('Preload carregado - API de fila exposta em window.api');
 });

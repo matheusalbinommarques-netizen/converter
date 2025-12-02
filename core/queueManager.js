@@ -4,11 +4,9 @@ const { convertImageWithOptions } = require('./conversionService');
 const { extractAudioAsMp3 } = require('./videoConversionService');
 const { videoToGif } = require('./gifConversionService');
 const { buildSpritesheetFromImages } = require('./spriteService');
+const { videoToSpritesheet } = require('./videoSpritesheetService');
+const { spritesheetToVideo } = require('./spritesheetToVideoService');
 
-/**
- * QueueManager executa ConversionTasks uma por vez
- * e emite eventos sobre o ciclo de vida da tarefa.
- */
 class QueueManager extends EventEmitter {
   constructor() {
     super();
@@ -16,18 +14,12 @@ class QueueManager extends EventEmitter {
     this.isRunning = false;
   }
 
-  /**
-   * Adiciona uma tarefa à fila e dispara processamento se estiver ocioso.
-   */
   addTask(task) {
     this.queue.push(task);
     this.emit('task-added', task);
     this._runNext();
   }
 
-  /**
-   * Retorna a fila atual (somente leitura).
-   */
   getPendingTasks() {
     return [...this.queue];
   }
@@ -50,7 +42,6 @@ class QueueManager extends EventEmitter {
 
       switch (task.kind) {
         case 'image': {
-          // converte cada arquivo de entrada com as mesmas opções
           const promises = task.inputPaths.map((p) =>
             convertImageWithOptions(p, task.options || {})
           );
@@ -79,8 +70,25 @@ class QueueManager extends EventEmitter {
             task.inputPaths,
             task.options || {}
           );
-          // sheet + json
           results = [spriteResult.sheetPath, spriteResult.metaPath];
+          break;
+        }
+
+        case 'video-spritesheet': {
+          const spriteResult = await videoToSpritesheet(
+            task.inputPaths[0],
+            task.options || {}
+          );
+          results = [spriteResult.sheetPath, spriteResult.metaPath];
+          break;
+        }
+
+        case 'spritesheet-video': {
+          const result = await spritesheetToVideo(
+            task.inputPaths[0],
+            task.options || {}
+          );
+          results = [result.videoPath];
           break;
         }
 
@@ -92,12 +100,18 @@ class QueueManager extends EventEmitter {
       task.resultPaths = Array.isArray(results) ? results : [results];
       this.emit('task-completed', task);
     } catch (err) {
+      console.error('[QueueManager] Task failed:', {
+        id: task.id,
+        kind: task.kind,
+        inputPaths: task.inputPaths,
+        error: err.message,
+      });
+
       task.status = 'failed';
       task.errorMessage = err.message;
       this.emit('task-failed', task, err);
     } finally {
       this.isRunning = false;
-      // tenta rodar a próxima
       this._runNext();
     }
   }

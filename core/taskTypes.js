@@ -1,7 +1,7 @@
 // core/taskTypes.js
 
 /**
- * @typedef {'image' | 'video-mp3' | 'video-gif' | 'spritesheet'} ConversionKind
+ * @typedef {'image' | 'video-mp3' | 'video-gif' | 'spritesheet' | 'video-spritesheet' | 'spritesheet-video'} ConversionKind
  */
 
 /**

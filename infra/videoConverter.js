@@ -3,12 +3,13 @@ const fs = require('fs');
 const path = require('path');
 const ffmpeg = require('fluent-ffmpeg');
 const ffmpegStatic = require('ffmpeg-static');
+const ffprobeStatic = require('ffprobe-static');
 
-// aponta o fluent-ffmpeg para o binário estático
 ffmpeg.setFfmpegPath(ffmpegStatic);
+ffmpeg.setFfprobePath(ffprobeStatic.path);
 
 /**
- * Converte um vídeo (ex.: MP4) para MP3 (áudio apenas).
+ * Vídeo -> MP3
  */
 function convertVideoToMp3(inputPath, outputDir) {
   return new Promise((resolve, reject) => {
@@ -16,9 +17,11 @@ function convertVideoToMp3(inputPath, outputDir) {
       return reject(new Error(`Arquivo de entrada não encontrado: ${inputPath}`));
     }
 
-    const parsed = path.parse(inputPath);
-    const targetDir = outputDir || parsed.dir;
-    const outputPath = path.join(targetDir, `${parsed.name}.mp3`);
+    const { resolveOutputDir } = require('./configService');
+
+const parsed = path.parse(inputPath);
+const targetDir = resolveOutputDir(parsed.dir, outputDir);
+const outputPath = path.join(targetDir, `${parsed.name}.mp3`);
 
     ffmpeg(inputPath)
       .noVideo()
@@ -34,14 +37,7 @@ function convertVideoToMp3(inputPath, outputDir) {
 }
 
 /**
- * Converte um vídeo em GIF animado com opções simples.
- *
- * @param {string} inputPath
- * @param {object} options
- * @param {number} [options.width] - largura do GIF (mantém proporção)
- * @param {number} [options.fps] - frames por segundo (ex.: 10, 12, 15)
- * @param {string} [options.outputDir]
- * @returns {Promise<string>} caminho do GIF gerado
+ * Vídeo -> GIF (usando subset de frames)
  */
 function convertVideoToGif(inputPath, options = {}) {
   const { width, fps, outputDir } = options;
@@ -58,7 +54,6 @@ function convertVideoToGif(inputPath, options = {}) {
     let command = ffmpeg(inputPath);
 
     if (width && Number.isFinite(width)) {
-      // redimensiona mantendo proporção
       command = command.size(`${Math.round(width)}x?`);
     }
 
@@ -78,7 +73,100 @@ function convertVideoToGif(inputPath, options = {}) {
   });
 }
 
+/**
+ * Descobre FPS do vídeo usando ffprobe.
+ */
+function getVideoFps(inputPath) {
+  return new Promise((resolve, reject) => {
+    ffmpeg.ffprobe(inputPath, (err, data) => {
+      if (err) {
+        return reject(new Error(`Erro no ffprobe: ${err.message}`));
+      }
+
+      const videoStream = data.streams.find((s) => s.codec_type === 'video');
+      if (!videoStream) {
+        return reject(new Error('Nenhum stream de vídeo encontrado.'));
+      }
+
+      const rateStr =
+        videoStream.r_frame_rate ||
+        videoStream.avg_frame_rate ||
+        videoStream.time_base;
+
+      if (!rateStr || !rateStr.includes('/')) {
+        return reject(new Error(`Não foi possível obter FPS a partir de: ${rateStr}`));
+      }
+
+      const [num, den] = rateStr.split('/').map(Number);
+      if (!num || !den) {
+        return reject(new Error(`FPS inválido em r_frame_rate: ${rateStr}`));
+      }
+
+      const fps = num / den;
+      resolve(fps);
+    });
+  });
+}
+
+/**
+ * Extrai TODOS os frames do vídeo como PNG, em ordem.
+ *
+ * @param {string} inputPath
+ * @param {object} options
+ * @param {number} [options.width] - largura desejada (px)
+ * @param {string} [options.outputDir] - pasta onde salvar os frames
+ *
+ * @returns {Promise<string[]>} caminhos dos PNGs gerados (ordenados)
+ */
+function extractAllFramesToPngs(inputPath, options = {}) {
+  const { width, outputDir } = options;
+
+  return new Promise((resolve, reject) => {
+    if (!fs.existsSync(inputPath)) {
+      return reject(new Error(`Arquivo de entrada não encontrado: ${inputPath}`));
+    }
+
+    const parsed = path.parse(inputPath);
+    const targetDir =
+      outputDir || path.join(parsed.dir, `${parsed.name}_frames`);
+
+    if (!fs.existsSync(targetDir)) {
+      fs.mkdirSync(targetDir, { recursive: true });
+    }
+
+    let command = ffmpeg(inputPath);
+
+    if (width && Number.isFinite(width)) {
+      command = command.size(`${Math.round(width)}x?`);
+    }
+
+    // -vsync 0 evita duplicar/pular frames
+    command
+      .output(path.join(targetDir, 'frame-%06d.png'))
+      .outputOptions(['-vsync 0'])
+      .on('error', (err) => {
+        reject(new Error(`Erro no FFmpeg (all frames): ${err.message}`));
+      })
+      .on('end', () => {
+        try {
+          const files = fs
+            .readdirSync(targetDir)
+            .filter((f) => f.toLowerCase().endsWith('.png'))
+            .sort()
+            .map((f) => path.join(targetDir, f));
+
+          resolve(files);
+        } catch (err2) {
+          reject(err2);
+        }
+      })
+      .run();
+  });
+}
+
 module.exports = {
   convertVideoToMp3,
   convertVideoToGif,
+  getVideoFps,
+  extractAllFramesToPngs,
 };
