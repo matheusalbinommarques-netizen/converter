@@ -2,6 +2,7 @@
 const sharp = require('sharp');
 const path = require('path');
 const fs = require('fs');
+const { resolveOutputDir } = require('./configService');
 
 /**
  * Converte uma imagem para um formato alvo com opções.
@@ -9,13 +10,13 @@ const fs = require('fs');
  * @param {string} inputPath - Caminho do arquivo de entrada.
  * @param {object} options
  * @param {string} options.targetFormat - 'jpg' | 'jpeg' | 'png' | 'webp'
- * @param {number} [options.quality] - Qualidade (0–100) para formatos com compressão.
+ * @param {number} [options.quality] - Qualidade (1–100) para formatos com compressão.
  * @param {number} [options.width] - Largura desejada (redimensiona mantendo proporção).
- * @param {string} [options.outputDir] - Pasta de saída (se não passar, usa a mesma do input).
+ * @param {string} [options.outputDir] - Pasta de saída (se não passar, usa regra do ConfigService).
  *
  * @returns {Promise<string>} - Caminho do arquivo gerado.
  */
-async function convertImage(inputPath, options) {
+async function convertImage(inputPath, options = {}) {
   const { targetFormat, quality, width, outputDir } = options;
 
   if (!fs.existsSync(inputPath)) {
@@ -23,45 +24,66 @@ async function convertImage(inputPath, options) {
   }
 
   const allowedFormats = ['jpg', 'jpeg', 'png', 'webp'];
-  if (!allowedFormats.includes(String(targetFormat).toLowerCase())) {
+  const fmt = String(targetFormat || '').toLowerCase();
+
+  if (!allowedFormats.includes(fmt)) {
     throw new Error(
       `Formato alvo inválido: ${targetFormat}. Use: ${allowedFormats.join(', ')}`
     );
   }
 
   const parsed = path.parse(inputPath);
-  const normalizedFormat =
-    targetFormat.toLowerCase() === 'jpg' ? 'jpeg' : targetFormat.toLowerCase();
 
-  const targetDir = outputDir || parsed.dir;
-  const outputPath = path.join(targetDir, `${parsed.name}.${normalizedFormat === 'jpeg' ? 'jpg' : normalizedFormat}`);
+  // Usa config global + pasta de entrada como fallback
+  const targetDir = resolveOutputDir(parsed.dir, outputDir);
 
-  let pipeline = sharp(inputPath);
-
-  if (width && Number.isFinite(width)) {
-    pipeline = pipeline.resize({ width: Math.round(width) });
+  if (!fs.existsSync(targetDir)) {
+    fs.mkdirSync(targetDir, { recursive: true });
   }
 
-  const sharpOptions = {};
+  // Internamente o sharp usa "jpeg", mas queremos salvar como .jpg no nome do arquivo
+  const normalizedFormat = fmt === 'jpg' ? 'jpeg' : fmt;
+  const outExt = fmt === 'jpeg' || fmt === 'jpg' ? 'jpg' : fmt;
+
+  const outputPath = path.join(targetDir, `${parsed.name}.${outExt}`);
+
+  let instance = sharp(inputPath);
+
+  if (width && Number.isFinite(width)) {
+    instance = instance.resize({
+      width: Math.round(width),
+      withoutEnlargement: true,
+    });
+  }
+
+  let q;
   if (quality && Number.isFinite(quality)) {
-    sharpOptions.quality = Math.max(1, Math.min(100, Math.round(quality)));
+    q = Math.max(1, Math.min(100, Math.round(quality)));
   }
 
   switch (normalizedFormat) {
     case 'jpeg':
-      pipeline = pipeline.jpeg(sharpOptions);
+      instance = instance.jpeg({
+        quality: q ?? 80,
+        mozjpeg: true,
+      });
       break;
     case 'png':
-      pipeline = pipeline.png(sharpOptions);
+      instance = instance.png({
+        compressionLevel: 9,
+      });
       break;
     case 'webp':
-      pipeline = pipeline.webp(sharpOptions);
+      instance = instance.webp({
+        quality: q ?? 80,
+      });
       break;
     default:
-      throw new Error(`Formato ainda não suportado internamente: ${normalizedFormat}`);
+      throw new Error(`Formato alvo não suportado internamente: ${normalizedFormat}`);
   }
 
-  await pipeline.toFile(outputPath);
+  await instance.toFile(outputPath);
+
   return outputPath;
 }
 

@@ -4,6 +4,7 @@ const path = require('path');
 const ffmpeg = require('fluent-ffmpeg');
 const ffmpegStatic = require('ffmpeg-static');
 const ffprobeStatic = require('ffprobe-static');
+const { resolveOutputDir } = require('./configService');
 
 ffmpeg.setFfmpegPath(ffmpegStatic);
 ffmpeg.setFfprobePath(ffprobeStatic.path);
@@ -17,17 +18,22 @@ function convertVideoToMp3(inputPath, outputDir) {
       return reject(new Error(`Arquivo de entrada não encontrado: ${inputPath}`));
     }
 
-    const { resolveOutputDir } = require('./configService');
+    const parsed = path.parse(inputPath);
 
-const parsed = path.parse(inputPath);
-const targetDir = resolveOutputDir(parsed.dir, outputDir);
-const outputPath = path.join(targetDir, `${parsed.name}.mp3`);
+    // Usa config global / pasta padrão
+    const targetDir = resolveOutputDir(parsed.dir, outputDir);
+
+    if (!fs.existsSync(targetDir)) {
+      fs.mkdirSync(targetDir, { recursive: true });
+    }
+
+    const outputPath = path.join(targetDir, `${parsed.name}.mp3`);
 
     ffmpeg(inputPath)
       .noVideo()
       .audioCodec('libmp3lame')
       .on('error', (err) => {
-        reject(new Error(`Erro no FFmpeg: ${err.message}`));
+        reject(err);
       })
       .on('end', () => {
         resolve(outputPath);
@@ -37,7 +43,7 @@ const outputPath = path.join(targetDir, `${parsed.name}.mp3`);
 }
 
 /**
- * Vídeo -> GIF (usando subset de frames)
+ * Vídeo -> GIF
  */
 function convertVideoToGif(inputPath, options = {}) {
   const { width, fps, outputDir } = options;
@@ -48,7 +54,14 @@ function convertVideoToGif(inputPath, options = {}) {
     }
 
     const parsed = path.parse(inputPath);
-    const targetDir = outputDir || parsed.dir;
+
+    // Usa config global / pasta padrão
+    const targetDir = resolveOutputDir(parsed.dir, outputDir);
+
+    if (!fs.existsSync(targetDir)) {
+      fs.mkdirSync(targetDir, { recursive: true });
+    }
+
     const outputPath = path.join(targetDir, `${parsed.name}.gif`);
 
     let command = ffmpeg(inputPath);
@@ -62,9 +75,8 @@ function convertVideoToGif(inputPath, options = {}) {
     }
 
     command
-      .toFormat('gif')
       .on('error', (err) => {
-        reject(new Error(`Erro no FFmpeg (GIF): ${err.message}`));
+        reject(err);
       })
       .on('end', () => {
         resolve(outputPath);
@@ -74,49 +86,40 @@ function convertVideoToGif(inputPath, options = {}) {
 }
 
 /**
- * Descobre FPS do vídeo usando ffprobe.
+ * Lê FPS de um vídeo usando ffprobe.
  */
 function getVideoFps(inputPath) {
   return new Promise((resolve, reject) => {
-    ffmpeg.ffprobe(inputPath, (err, data) => {
-      if (err) {
-        return reject(new Error(`Erro no ffprobe: ${err.message}`));
+    ffmpeg.ffprobe(inputPath, (err, metadata) => {
+      if (err) return reject(err);
+
+      try {
+        const streams = metadata.streams || [];
+        const videoStream = streams.find((s) => s.codec_type === 'video');
+        if (!videoStream || !videoStream.r_frame_rate) {
+          return reject(new Error('Não foi possível determinar o FPS do vídeo.'));
+        }
+
+        const [num, den] = videoStream.r_frame_rate.split('/').map(Number);
+        if (!num || !den) {
+          return reject(new Error('FPS inválido retornado pelo ffprobe.'));
+        }
+
+        const fps = num / den;
+        resolve(fps);
+      } catch (error) {
+        reject(error);
       }
-
-      const videoStream = data.streams.find((s) => s.codec_type === 'video');
-      if (!videoStream) {
-        return reject(new Error('Nenhum stream de vídeo encontrado.'));
-      }
-
-      const rateStr =
-        videoStream.r_frame_rate ||
-        videoStream.avg_frame_rate ||
-        videoStream.time_base;
-
-      if (!rateStr || !rateStr.includes('/')) {
-        return reject(new Error(`Não foi possível obter FPS a partir de: ${rateStr}`));
-      }
-
-      const [num, den] = rateStr.split('/').map(Number);
-      if (!num || !den) {
-        return reject(new Error(`FPS inválido em r_frame_rate: ${rateStr}`));
-      }
-
-      const fps = num / den;
-      resolve(fps);
     });
   });
 }
 
 /**
- * Extrai TODOS os frames do vídeo como PNG, em ordem.
+ * Extrai TODOS os frames do vídeo para PNGs numerados.
+ * Retorna lista de caminhos dos frames.
  *
- * @param {string} inputPath
- * @param {object} options
- * @param {number} [options.width] - largura desejada (px)
- * @param {string} [options.outputDir] - pasta onde salvar os frames
- *
- * @returns {Promise<string[]>} caminhos dos PNGs gerados (ordenados)
+ * ⚠️ Aqui **não** usamos resolveOutputDir porque é saída temporária
+ * controlada pela camada de spritesheet (ela já decide a pasta).
  */
 function extractAllFramesToPngs(inputPath, options = {}) {
   const { width, outputDir } = options;
@@ -127,12 +130,20 @@ function extractAllFramesToPngs(inputPath, options = {}) {
     }
 
     const parsed = path.parse(inputPath);
-    const targetDir =
-      outputDir || path.join(parsed.dir, `${parsed.name}_frames`);
+    const baseDir = outputDir || parsed.dir;
 
-    if (!fs.existsSync(targetDir)) {
-      fs.mkdirSync(targetDir, { recursive: true });
+    if (!fs.existsSync(baseDir)) {
+      fs.mkdirSync(baseDir, { recursive: true });
     }
+
+    // Subpasta específica para frames
+    const framesDir = path.join(baseDir, `${parsed.name}_frames`);
+
+    if (!fs.existsSync(framesDir)) {
+      fs.mkdirSync(framesDir, { recursive: true });
+    }
+
+    const framePattern = path.join(framesDir, 'frame_%05d.png');
 
     let command = ffmpeg(inputPath);
 
@@ -140,20 +151,18 @@ function extractAllFramesToPngs(inputPath, options = {}) {
       command = command.size(`${Math.round(width)}x?`);
     }
 
-    // -vsync 0 evita duplicar/pular frames
     command
-      .output(path.join(targetDir, 'frame-%06d.png'))
-      .outputOptions(['-vsync 0'])
+      .output(framePattern)
       .on('error', (err) => {
-        reject(new Error(`Erro no FFmpeg (all frames): ${err.message}`));
+        reject(err);
       })
       .on('end', () => {
         try {
           const files = fs
-            .readdirSync(targetDir)
+            .readdirSync(framesDir)
             .filter((f) => f.toLowerCase().endsWith('.png'))
             .sort()
-            .map((f) => path.join(targetDir, f));
+            .map((f) => path.join(framesDir, f));
 
           resolve(files);
         } catch (err2) {

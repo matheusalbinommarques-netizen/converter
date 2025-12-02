@@ -2,7 +2,9 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('api', {
-  chooseFiles: (kind) => ipcRenderer.invoke('choose-files', { kind }),
+  // ⬇️ ANTES: (kind) => ipcRenderer.invoke('choose-files', { kind })
+  chooseFiles: (kind) => ipcRenderer.invoke('choose-files', kind),
+
   enqueueTasks: (payload) => ipcRenderer.invoke('enqueue-tasks', payload),
   openInFolder: (targetPath) => ipcRenderer.invoke('open-in-folder', targetPath),
   onQueueEvent: (callback) => {
