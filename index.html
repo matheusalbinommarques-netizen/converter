@@ -2,1328 +2,516 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <title>Conversor de Arquivos Universal - MVP</title>
+    <title>Universal Converter</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
     <style>
-      * {
-        box-sizing: border-box;
-      }
-      body {
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-          sans-serif;
-        background: #020617;
-        color: #e5e7eb;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        justify-content: center;
-        align-items: stretch;
-        min-height: 100vh;
-      }
-      .app {
-        width: 100%;
-        max-width: 1080px;
-        padding: 24px;
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-      }
-      header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 12px;
-      }
-      header h1 {
-        margin: 0;
-        font-size: 1.6rem;
-      }
-      header p {
-        margin: 0;
-        font-size: 0.9rem;
-        opacity: 0.8;
-      }
-      .tag {
-        display: inline-block;
-        padding: 4px 10px;
-        border-radius: 999px;
-        background: #10b98122;
-        border: 1px solid #10b981;
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-      }
-      main {
-        display: grid;
-        grid-template-columns: 320px 1fr;
-        gap: 16px;
-        align-items: flex-start;
-      }
-      .panel {
-        background: #020617;
-        border-radius: 16px;
-        border: 1px solid #1f2937;
-        padding: 16px 18px;
-        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.4);
-      }
-      .panel h2 {
-        margin: 0 0 8px;
-        font-size: 1rem;
-      }
-      .panel p {
-        margin: 0;
-        font-size: 0.84rem;
-        opacity: 0.85;
-      }
-      label {
-        display: block;
-        margin-top: 12px;
-        margin-bottom: 4px;
-        font-size: 0.85rem;
-        opacity: 0.9;
-      }
-      select,
-      input[type='number'],
-      input[type='text'] {
-        width: 100%;
-        padding: 8px 10px;
-        border-radius: 999px;
-        border: 1px solid #374151;
-        background: #020617;
-        color: #e5e7eb;
-        font-size: 0.9rem;
-        outline: none;
-      }
-      select:focus,
-      input[type='number']:focus,
-      input[type='text']:focus {
-        border-color: #22c55e;
-      }
-      .small-row {
-        display: flex;
-        gap: 8px;
-        margin-top: 8px;
-      }
-      .small-row > div {
-        flex: 1;
-      }
-      .preset-hint {
-        margin-top: 4px;
-        font-size: 0.75rem;
-        opacity: 0.75;
-      }
+      body { font-family: 'Inter', sans-serif; }
+      
+      /* Scrollbar Customizada */
+      ::-webkit-scrollbar { width: 6px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+      ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+      /* Dropzone Efeitos */
       .drop-zone {
-        margin-top: 12px;
-        padding: 12px 14px;
-        border-radius: 12px;
-        border: 1px dashed #4b5563;
-        background: #020617;
-        font-size: 0.82rem;
-        opacity: 0.85;
-        text-align: center;
-        transition: border-color 0.1s ease, background 0.1s ease;
+        background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='16' ry='16' stroke='%23334155FF' stroke-width='2' stroke-dasharray='12%2c 12' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
+        transition: all 0.3s ease;
+      }
+      .drop-zone:hover {
+        background-color: rgba(30, 41, 59, 0.8);
+        background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='16' ry='16' stroke='%2322D3EEFF' stroke-width='2' stroke-dasharray='12%2c 12' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px -10px rgba(34, 211, 238, 0.15);
+        cursor: pointer;
       }
       .drop-zone.drag-over {
-        border-color: #22c55e;
-        background: rgba(34, 197, 94, 0.08);
-        opacity: 1;
-      }
-      .selection-summary {
-        margin-top: 6px;
-        font-size: 0.78rem;
-        opacity: 0.85;
-      }
-      .actions {
-        margin-top: 16px;
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-      }
-      button {
-        border: none;
-        padding: 10px 16px;
-        border-radius: 999px;
-        font-size: 0.9rem;
-        cursor: pointer;
-        font-weight: 500;
-        background: #22c55e;
-        color: #022c22;
-        box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
-        transition: transform 0.08s ease, box-shadow 0.08s ease,
-          opacity 0.08s ease;
-      }
-      button.secondary {
-        background: #111827;
-        color: #e5e7eb;
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.6);
-      }
-      button.ghost {
-        background: transparent;
-        border: 1px solid #4b5563;
-        color: #e5e7eb;
-        box-shadow: none;
-      }
-      button:disabled {
-        opacity: 0.55;
-        cursor: default;
-        box-shadow: none;
-        transform: none;
-      }
-      button:hover:not(:disabled) {
-        transform: translateY(-1px);
-        box-shadow: 0 14px 30px rgba(16, 185, 129, 0.4);
-      }
-      button.secondary:hover:not(:disabled) {
-        box-shadow: 0 14px 30px rgba(0, 0, 0, 0.8);
-      }
-      button.ghost:hover:not(:disabled) {
-        box-shadow: none;
-        background: rgba(15, 23, 42, 0.8);
-      }
-      .status-bar {
-        margin-top: 8px;
-        font-size: 0.82rem;
-        min-height: 1.2em;
-      }
-      .status-bar.ok {
-        color: #22c55e;
-      }
-      .status-bar.error {
-        color: #f97373;
-      }
-      .status-bar.info {
-        color: #e5e7eb;
-      }
-      .tasks-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 8px;
-        gap: 8px;
-      }
-      .tasks-header h2 {
-        margin: 0;
-        font-size: 1rem;
-      }
-      .tasks-summary {
-        font-size: 0.8rem;
-        opacity: 0.8;
-      }
-      .task-list {
-        margin-top: 4px;
-        border-radius: 12px;
-        border: 1px solid #111827;
-        background: #020617;
-        max-height: 460px;
-        overflow-y: auto;
-      }
-      .task-row {
-        display: grid;
-        grid-template-columns: 1.4fr 0.9fr 0.7fr 0.7fr;
-        gap: 8px;
-        padding: 8px 10px;
-        font-size: 0.82rem;
-        align-items: center;
-        border-bottom: 1px solid #020617;
-      }
-      .task-row:nth-child(2n) {
-        background: #020617;
-      }
-      .task-row:last-child {
-        border-bottom: none;
-      }
-      .task-kind {
-        font-size: 0.78rem;
-        opacity: 0.8;
-      }
-      .task-status {
-        font-weight: 500;
+        background-color: rgba(6, 182, 212, 0.1);
+        transform: scale(0.98);
       }
 
-      /* Badge de status com bolinha */
-      .task-status-inner {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 2px 8px;
-        border-radius: 999px;
-        background: rgba(15, 23, 42, 0.95);
+      /* Animação Status */
+      @keyframes pulse-ring {
+        0% { transform: scale(0.8); opacity: 0.5; }
+        100% { transform: scale(2); opacity: 0; }
       }
-      .status-dot {
-        width: 6px;
-        height: 6px;
-        border-radius: 999px;
-        background: #9ca3af;
-      }
-      .status-dot.pending {
-        background: #9ca3af;
-      }
-      .status-dot.running {
-        background: #fbbf24;
-        animation: pulse 0.8s ease-in-out infinite;
-      }
-      .status-dot.completed {
-        background: #22c55e;
-      }
-      .status-dot.failed {
-        background: #f97373;
-      }
-      @keyframes pulse {
-        0% {
-          transform: scale(1);
-          opacity: 0.8;
-        }
-        50% {
-          transform: scale(1.4);
-          opacity: 1;
-        }
-        100% {
-          transform: scale(1);
-          opacity: 0.8;
-        }
-      }
-
-      .task-status.pending {
-        color: #e5e7eb;
-      }
-      .task-status.running {
-        color: #fbbf24;
-      }
-      .task-status.completed {
-        color: #22c55e;
-      }
-      .task-status.failed {
-        color: #f97373;
-      }
-      .file-name {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-      .file-path {
-        font-size: 0.72rem;
-        opacity: 0.7;
-      }
-      .task-actions button {
-        width: 100%;
-        padding-inline: 8px;
-      }
-      footer {
-        margin-top: 4px;
-        font-size: 0.75rem;
-        opacity: 0.6;
-        text-align: right;
+      .status-running-dot::before {
+        content: ''; position: absolute; width: 100%; height: 100%;
+        background-color: inherit; border-radius: 50%;
+        animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
       }
     </style>
   </head>
-  <body>
-    <div class="app">
-      <header>
-        <div>
-          <h1>Conversor de Arquivos Universal</h1>
-          <p>MVP Desktop – vídeo ↔ spritesheet incluso</p>
-        </div>
-        <div class="tag">MVP</div>
+
+  <body class="min-h-screen bg-[#0B0F19] text-slate-200 antialiased flex items-center justify-center py-8 px-4">
+    
+    <div class="w-full max-w-5xl bg-slate-900/40 backdrop-blur-2xl border border-white/5 rounded-[2rem] shadow-2xl p-8 relative">
+      
+      <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[200px] bg-cyan-500/10 blur-[100px] rounded-full pointer-events-none"></div>
+
+      <header class="relative flex flex-col items-center justify-center text-center space-y-3 mb-10">
+          <div class="flex items-center justify-center p-3 bg-slate-800/50 rounded-2xl border border-white/5 shadow-lg mb-2">
+            <img src="./logo/Universal_Converter.svg" alt="UC" class="h-10 w-10 rounded-lg" onerror="this.style.display='none'">
+          </div>
+          <h1 class="text-3xl font-bold tracking-tight text-white bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-200 to-slate-400">
+            Universal Converter
+          </h1>
+          <p class="text-sm text-slate-400">Suíte de conversão multimídia</p>
       </header>
 
-      <main>
-        <!-- Painel de opções -->
-        <section class="panel">
-          <h2>Configuração rápida</h2>
-          <p>
-            Escolha o tipo de conversão, selecione um preset ou ajuste as
-            opções e adicione arquivos à fila.
-          </p>
-
-          <label for="conversion-kind">Tipo de conversão</label>
-          <select id="conversion-kind">
-            <option value="image">Imagem → Web (PNG/JPEG/WebP)</option>
-            <option value="image-pdf">Imagens → PDF</option>
-            <option value="pdf-image">PDF → Imagens</option>
-            <option value="video-mp3">Vídeo → MP3 (áudio)</option>
-            <option value="video-gif">Vídeo → GIF</option>
-            <option value="spritesheet">Spritesheet (múltiplas imagens)</option>
-            <option value="video-spritesheet">Vídeo → Spritesheet</option>
-            <option value="spritesheet-video">Spritesheet → Vídeo</option>
-          </select>
-
-          <!-- Preset rápido (muda conforme o tipo) -->
-          <label for="preset-select">Preset rápido</label>
-          <select id="preset-select"></select>
-          <div id="preset-hint" class="preset-hint"></div>
-
-          <!-- Opções para imagem -->
-          <div id="options-image">
-            <label for="image-format">Formato de saída (imagem)</label>
-            <select id="image-format">
-              <option value="jpg">JPG</option>
-              <option value="png">PNG</option>
-              <option value="webp" selected>WebP</option>
-            </select>
-
-            <div class="small-row">
-              <div>
-                <label for="image-width">Largura (px, opcional)</label>
-                <input
-                  id="image-width"
-                  type="number"
-                  min="1"
-                  placeholder="ex: 1024"
-                />
-              </div>
-              <div>
-                <label for="image-quality">Qualidade (1–100)</label>
-                <input
-                  id="image-quality"
-                  type="number"
-                  min="1"
-                  max="100"
-                  value="80"
-                />
-              </div>
-            </div>
-          </div>
-
-          <!-- Opções para imagens -> PDF -->
-          <div id="options-image-pdf" style="display: none">
-            <p style="margin-top: 8px; font-size: 0.8rem; opacity: 0.8">
-              As imagens selecionadas serão combinadas em um único PDF, uma por
-              página, na ordem em que aparecem na seleção.
-            </p>
-          </div>
-
-          <!-- Opções para PDF -> imagens -->
-          <div id="options-pdf-image" style="display: none">
-            <div class="small-row">
-              <div>
-                <label for="pi-format">Formato das imagens</label>
-                <select id="pi-format">
-                  <option value="png" selected>PNG</option>
-                  <option value="jpg">JPG</option>
-                  <option value="webp">WebP</option>
+      <main class="grid grid-cols-1 lg:grid-cols-2 gap-8 relative z-10">
+        
+        <section class="space-y-6 flex flex-col">
+          
+          <div class="space-y-4">
+            <div class="relative group z-50">
+              <label class="block text-xs font-semibold text-cyan-400 mb-1.5 uppercase tracking-wider ml-1">Converter para</label>
+              <div class="relative">
+                <select id="conversion-kind" class="w-full bg-slate-800/90 text-white text-sm border border-slate-700 rounded-xl px-4 py-3 outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 transition-all appearance-none cursor-pointer hover:bg-slate-800 shadow-xl">
+                    <option value="image">Imagem (WebP/PNG/JPG)</option>
+                    <option value="video-mp3">Vídeo (MP4) → Áudio (MP3)</option>
+                    <option value="video-gif">Vídeo (MP4) → GIF Animado</option>
+                    <option value="spritesheet">Múltiplas Imagens → Spritesheet</option>
+                    <option value="video-spritesheet">Vídeo (MP4) → Spritesheet</option>
+                    <option value="spritesheet-video">Spritesheet → Vídeo</option>
+                    <option value="image-pdf">Imagens → PDF</option>
+                    <option value="pdf-image">PDF → Imagens</option>
                 </select>
-              </div>
-              <div>
-                <label for="pi-dpi">DPI (resolução)</label>
-                <input
-                  id="pi-dpi"
-                  type="number"
-                  min="72"
-                  max="600"
-                  value="150"
-                />
-              </div>
-            </div>
-            <p style="margin-top: 8px; font-size: 0.8rem; opacity: 0.8">
-              Cada página do PDF será exportada como uma imagem separada, na
-              pasta de <strong>Imagens convertidas</strong>.
-            </p>
-          </div>
-
-          <!-- Opções para vídeo→GIF -->
-          <div id="options-video-gif" style="display: none">
-            <div class="small-row">
-              <div>
-                <label for="gif-width">Largura (px, opcional)</label>
-                <input
-                  id="gif-width"
-                  type="number"
-                  min="1"
-                  placeholder="ex: 480"
-                />
-              </div>
-              <div>
-                <label for="gif-fps">FPS (quadros/s)</label>
-                <input
-                  id="gif-fps"
-                  type="number"
-                  min="1"
-                  max="30"
-                  value="12"
-                />
-              </div>
-            </div>
-          </div>
-
-          <!-- Opções para spritesheet (imagens) -->
-          <div id="options-spritesheet" style="display: none">
-            <div class="small-row">
-              <div>
-                <label for="sheet-columns">Colunas (opcional)</label>
-                <input
-                  id="sheet-columns"
-                  type="number"
-                  min="1"
-                  placeholder="auto"
-                />
-              </div>
-              <div>
-                <label for="sheet-name">Nome da sheet (opcional)</label>
-                <input
-                  id="sheet-name"
-                  type="text"
-                  placeholder="spritesheet"
-                />
-              </div>
-            </div>
-            <p style="margin-top: 8px; font-size: 0.8rem; opacity: 0.8">
-              Use imagens do mesmo tamanho para melhores resultados. Será gerado
-              um PNG + JSON.
-            </p>
-          </div>
-
-          <!-- Opções para vídeo → spritesheet -->
-          <div id="options-video-spritesheet" style="display: none">
-            <div class="small-row">
-              <div>
-                <label for="vs-width">Largura (px, opcional)</label>
-                <input
-                  id="vs-width"
-                  type="number"
-                  min="1"
-                  placeholder="ex: 480"
-                />
-              </div>
-              <div>
-                <label for="vs-frames">Qtd. frames (opcional)</label>
-                <input
-                  id="vs-frames"
-                  type="number"
-                  min="1"
-                  placeholder="ex: 16"
-                />
-              </div>
-            </div>
-            <div class="small-row">
-              <div>
-                <label for="vs-columns">Colunas (opcional)</label>
-                <input
-                  id="vs-columns"
-                  type="number"
-                  min="1"
-                  placeholder="auto"
-                />
-              </div>
-              <div>
-                <label for="vs-name">Nome da sheet (opcional)</label>
-                <input
-                  id="vs-name"
-                  type="text"
-                  placeholder="video_sheet"
-                />
-              </div>
-            </div>
-            <p style="margin-top: 8px; font-size: 0.8rem; opacity: 0.8">
-              Frames serão extraídos do vídeo, redimensionados (se você
-              informar largura) e combinados em PNG + JSON.
-            </p>
-          </div>
-
-          <!-- Opções para spritesheet → vídeo -->
-          <div id="options-spritesheet-video" style="display: none">
-            <div class="small-row">
-              <div>
-                <label for="sv-fps">FPS (quadros/s)</label>
-                <input
-                  id="sv-fps"
-                  type="number"
-                  min="1"
-                  max="60"
-                  value="12"
-                />
-              </div>
-            </div>
-            <p style="margin-top: 8px; font-size: 0.8rem; opacity: 0.8">
-              Usa a spritesheet (PNG) + JSON gerados pelo próprio app para
-              reconstruir um vídeo MP4.
-            </p>
-          </div>
-
-          <div id="drop-zone" class="drop-zone">
-            Ou arraste e solte arquivos aqui para adicionar à seleção.
-          </div>
-          <div id="selection-summary" class="selection-summary">
-            Nenhum arquivo selecionado ainda.
-          </div>
-
-          <div class="actions">
-            <button id="add-files-btn">Adicionar arquivos</button>
-            <button id="convert-btn" class="secondary">Converter</button>
-            <button id="clear-tasks-btn" class="ghost">Limpar fila</button>
-          </div>
-
-          <div id="status-bar" class="status-bar info"></div>
-        </section>
-
-        <!-- Painel de tarefas -->
-        <section class="panel">
-          <div class="tasks-header">
-            <h2>Fila de conversão</h2>
-            <div class="tasks-summary" id="tasks-summary">
-              Nenhuma tarefa ainda.
-            </div>
-          </div>
-
-          <div class="task-list" id="task-list">
-            <div class="task-row">
-              <div>
-                <div class="file-name">Nenhuma tarefa na fila.</div>
-                <div class="file-path">
-                  Use “Adicionar arquivos” e depois “Converter”.
+                <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                  <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                 </div>
               </div>
-              <div class="task-kind"></div>
-              <div class="task-status"></div>
-              <div class="task-actions"></div>
             </div>
+
+            <div class="relative group z-40">
+               <div class="flex justify-between items-end mb-1.5 ml-1">
+                 <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider">Preset</label>
+                 <div id="preset-hint" class="text-[10px] text-cyan-500/80 font-medium"></div>
+               </div>
+               <div class="relative">
+                 <select id="preset-select" class="w-full bg-slate-900/40 text-slate-300 text-xs border border-slate-800 rounded-lg px-3 py-2 outline-none focus:border-cyan-500/50 transition-all appearance-none cursor-pointer hover:bg-slate-900/60"></select>
+                 <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
+                   <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                 </div>
+               </div>
+            </div>
+          </div>
+
+          <div class="p-5 rounded-2xl bg-slate-950/30 border border-white/5 shadow-inner z-0">
+             
+             <div id="options-image" class="space-y-3">
+                <div class="space-y-1">
+                   <label class="text-[10px] uppercase text-slate-500 font-bold tracking-wider">Formato Saída</label>
+                   <select id="image-format" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:border-cyan-500 outline-none">
+                     <option value="webp">WebP</option>
+                     <option value="png">PNG</option>
+                     <option value="jpg">JPG</option>
+                   </select>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="space-y-1">
+                    <label class="text-[10px] uppercase text-slate-500 font-bold tracking-wider">Largura (px)</label>
+                    <input id="image-width" type="number" placeholder="Original" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:border-cyan-500 outline-none placeholder-slate-600">
+                  </div>
+                  <div class="space-y-1">
+                    <label class="text-[10px] uppercase text-slate-500 font-bold tracking-wider">Qualidade</label>
+                    <input id="image-quality" type="number" value="80" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:border-cyan-500 outline-none">
+                  </div>
+                </div>
+             </div>
+
+             <div id="options-video-gif" class="hidden space-y-3">
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="space-y-1">
+                    <label class="text-[10px] uppercase text-slate-500 font-bold tracking-wider">Largura (px)</label>
+                    <input id="gif-width" type="number" placeholder="480" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:border-cyan-500 outline-none">
+                  </div>
+                  <div class="space-y-1">
+                    <label class="text-[10px] uppercase text-slate-500 font-bold tracking-wider">FPS</label>
+                    <input id="gif-fps" type="number" value="12" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:border-cyan-500 outline-none">
+                  </div>
+                </div>
+             </div>
+
+             <div id="options-spritesheet" class="hidden space-y-3">
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="space-y-1">
+                    <label class="text-[10px] uppercase text-slate-500 font-bold tracking-wider">Colunas</label>
+                    <input id="sheet-columns" type="number" placeholder="Auto" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:border-cyan-500 outline-none">
+                  </div>
+                  <div class="space-y-1">
+                    <label class="text-[10px] uppercase text-slate-500 font-bold tracking-wider">Nome</label>
+                    <input id="sheet-name" type="text" placeholder="spritesheet" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:border-cyan-500 outline-none">
+                  </div>
+                </div>
+             </div>
+
+             <div id="options-video-spritesheet" class="hidden space-y-3">
+                <div class="grid grid-cols-2 gap-4">
+                   <div class="space-y-1">
+                     <label class="text-[10px] uppercase text-slate-500 font-bold tracking-wider">Largura</label>
+                     <input id="vs-width" type="number" placeholder="480" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:border-cyan-500 outline-none">
+                   </div>
+                   <div class="space-y-1">
+                     <label class="text-[10px] uppercase text-slate-500 font-bold tracking-wider">Frames</label>
+                     <input id="vs-frames" type="number" placeholder="16" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:border-cyan-500 outline-none">
+                   </div>
+                </div>
+                <div class="space-y-1">
+                   <label class="text-[10px] uppercase text-slate-500 font-bold tracking-wider">Colunas</label>
+                   <input id="vs-columns" type="number" placeholder="Auto" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:border-cyan-500 outline-none">
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[10px] uppercase text-slate-500 font-bold tracking-wider">Nome</label>
+                    <input id="vs-name" type="text" placeholder="video_sheet" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:border-cyan-500 outline-none">
+                 </div>
+             </div>
+
+             <div id="options-spritesheet-video" class="hidden space-y-3">
+                <div class="space-y-1">
+                  <label class="text-[10px] uppercase text-slate-500 font-bold tracking-wider">FPS</label>
+                  <input id="sv-fps" type="number" value="12" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:border-cyan-500 outline-none">
+                </div>
+             </div>
+          </div>
+
+          <div id="drop-zone" class="drop-zone group relative flex flex-col items-center justify-center h-36 rounded-2xl cursor-pointer">
+              <div class="p-3 bg-slate-800/50 rounded-full mb-2 group-hover:bg-cyan-500/20 group-hover:text-cyan-400 transition-colors">
+                 <svg class="w-6 h-6 text-slate-400 group-hover:text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                 </svg>
+              </div>
+              <p id="drop-text-primary" class="text-sm font-medium text-slate-300 group-hover:text-white transition-colors">Clique ou arraste arquivos</p>
+              <p id="drop-text-secondary" class="text-[10px] text-slate-500 mt-1">Suporta imagens, vídeos e PDF</p>
+          </div>
+
+          <button id="convert-btn" disabled class="w-full relative group overflow-hidden rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 p-px shadow-lg shadow-cyan-900/20 transition-all hover:shadow-cyan-500/40 disabled:opacity-50 disabled:shadow-none disabled:cursor-not-allowed">
+            <div class="relative rounded-[10px] bg-slate-900/50 group-hover:bg-transparent transition-colors h-full px-4 py-3.5">
+               <span class="relative flex items-center justify-center gap-2 text-sm font-bold text-white tracking-wide">
+                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                 INICIAR CONVERSÃO
+               </span>
+            </div>
+          </button>
+          
+          <div id="status-bar" class="text-center text-xs font-medium text-slate-500 min-h-[1rem]"></div>
+        </section>
+
+        <section class="flex flex-col bg-slate-950/40 border border-slate-800/50 rounded-2xl p-5 h-[580px] shadow-inner backdrop-blur-md">
+          
+          <div class="flex items-center justify-between mb-5 pb-3 border-b border-white/5">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Fila de Processamento</span>
+              <span id="queue-count" class="bg-slate-800 text-slate-300 text-[10px] px-2 py-0.5 rounded-full">0</span>
+            </div>
+            <button id="clear-tasks-btn" title="Limpar Fila" class="text-slate-500 hover:text-red-400 transition-colors p-1 rounded-md hover:bg-slate-800/50">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+            </button>
+          </div>
+
+          <div id="task-list" class="flex-1 overflow-y-auto space-y-2 pr-1 hidden custom-scrollbar"></div>
+
+          <div id="empty-queue-state" class="flex flex-col items-center justify-center h-full text-slate-600/50">
+             <svg class="w-16 h-16 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+             </svg>
+             <span class="text-sm font-medium text-slate-500">A fila está vazia</span>
+             <span class="text-[10px] text-slate-600 mt-1">Adicione arquivos para começar</span>
           </div>
         </section>
       </main>
-
-      <footer>
-        Engine de imagem, vídeo, GIF, spritesheet e PDF conectada via
-        QueueManager.
-      </footer>
     </div>
 
     <script>
       const kindSelect = document.getElementById('conversion-kind');
-      const optionsImage = document.getElementById('options-image');
-      const optionsImagePdf = document.getElementById('options-image-pdf');
-      const optionsPdfImage = document.getElementById('options-pdf-image');
-      const optionsVideoGif = document.getElementById('options-video-gif');
-      const optionsSpritesheet = document.getElementById('options-spritesheet');
-      const optionsVideoSpritesheet = document.getElementById(
-        'options-video-spritesheet'
-      );
-      const optionsSpritesheetVideo = document.getElementById(
-        'options-spritesheet-video'
-      );
-
       const presetSelect = document.getElementById('preset-select');
       const presetHintEl = document.getElementById('preset-hint');
-
-      const imageFormatEl = document.getElementById('image-format');
-      const imageWidthEl = document.getElementById('image-width');
-      const imageQualityEl = document.getElementById('image-quality');
-
-      const gifWidthEl = document.getElementById('gif-width');
-      const gifFpsEl = document.getElementById('gif-fps');
-
-      const sheetColumnsEl = document.getElementById('sheet-columns');
-      const sheetNameEl = document.getElementById('sheet-name');
-
-      const vsWidthEl = document.getElementById('vs-width');
-      const vsFramesEl = document.getElementById('vs-frames');
-      const vsColumnsEl = document.getElementById('vs-columns');
-      const vsNameEl = document.getElementById('vs-name');
-
-      const svFpsEl = document.getElementById('sv-fps');
-
-      const piFormatEl = document.getElementById('pi-format');
-      const piDpiEl = document.getElementById('pi-dpi');
-
       const dropZone = document.getElementById('drop-zone');
-      const selectionSummaryEl = document.getElementById('selection-summary');
-      const addFilesBtn = document.getElementById('add-files-btn');
       const convertBtn = document.getElementById('convert-btn');
       const clearTasksBtn = document.getElementById('clear-tasks-btn');
       const statusBar = document.getElementById('status-bar');
       const taskListEl = document.getElementById('task-list');
-      const tasksSummaryEl = document.getElementById('tasks-summary');
+      const emptyStateEl = document.getElementById('empty-queue-state');
+      const queueCountEl = document.getElementById('queue-count');
 
-      // arquivos selecionados pelo usuário (antes de converter)
+      const optionContainers = [
+        document.getElementById('options-image'),
+        document.getElementById('options-video-gif'),
+        document.getElementById('options-spritesheet'),
+        document.getElementById('options-video-spritesheet'),
+        document.getElementById('options-spritesheet-video')
+      ];
+
       let selectedFilePaths = [];
-      // tarefas reais da fila (vindas do backend)
       let tasks = [];
 
-      // ---- PRESETS NOMEADOS ----
+      // --- 1. CONFIGURAÇÃO DE PRESETS COM NOVOS FRAMES ---
       const PRESETS = {
         image: [
-          {
-            id: 'image-webp-light',
-            name: 'WebP leve 80% – 1024px',
-            description: 'Bom para web, tamanho reduzido, qualidade alta.',
-            options: { targetFormat: 'webp', width: 1024, quality: 80 },
-          },
-          {
-            id: 'image-jpeg-medium',
-            name: 'JPEG médio 85% – largura original',
-            description: 'Mantém largura, boa compressão para fotos.',
-            options: { targetFormat: 'jpg', width: undefined, quality: 85 },
-          },
-          {
-            id: 'image-png-original',
-            name: 'PNG – largura original',
-            description:
-              'PNG sem perdas extras. Ideal quando você quer máxima qualidade.',
-            options: { targetFormat: 'png', width: undefined, quality: 100 },
-          },
+          { id: 'webp-80', name: 'WebP (Otimizado)', options: { targetFormat: 'webp', quality: 80 } },
+          { id: 'jpg-hd', name: 'JPEG (Alta Qualidade)', options: { targetFormat: 'jpg', quality: 90 } },
+          { id: 'png', name: 'PNG (Transparente)', options: { targetFormat: 'png', quality: 100 } }
         ],
         'video-gif': [
-          {
-            id: 'gif-light',
-            name: 'GIF leve – 480px 12fps',
-            description: 'Ideal para memes e pré-visualizações leves.',
-            options: { width: 480, fps: 12 },
-          },
-          {
-            id: 'gif-medium',
-            name: 'GIF médio – 720px 15fps',
-            description:
-              'Mais definição, arquivo um pouco maior (bom para destaques).',
-            options: { width: 720, fps: 15 },
-          },
+          { id: 'gif-meme', name: 'Meme (480px / 12fps)', options: { width: 480, fps: 12 } },
+          { id: 'gif-hd', name: 'HD (720px / 15fps)', options: { width: 720, fps: 15 } }
         ],
         'video-spritesheet': [
-          {
-            id: 'vs-16frames-480-4cols',
-            name: '16 frames – 480px – 4 colunas',
-            description: 'Bom para animações curtas com boa definição.',
-            options: { width: 480, frameCount: 16, columns: 4 },
-          },
-          {
-            id: 'vs-32frames',
-            name: '32 frames – largura original',
-            description:
-              'Mais suavidade que 16 frames, mantendo largura original.',
-            options: { frameCount: 32 },
-          },
-          {
-            id: 'vs-64frames',
-            name: '64 frames – largura original',
-            description: 'Animação bem mais suave. Útil para loops longos.',
-            options: { frameCount: 64 },
-          },
-          {
-            id: 'vs-128frames',
-            name: '128 frames – largura original',
-            description:
-              'Muito suave, indicado para pré-render ou estudo de movimento.',
-            options: { frameCount: 128 },
-          },
-          {
-            id: 'vs-256frames',
-            name: '256 frames – largura original',
-            description:
-              'Quantidade alta de frames. Cuidado com o tamanho do arquivo.',
-            options: { frameCount: 256 },
-          },
-          {
-            id: 'vs-512frames',
-            name: '512 frames – largura original',
-            description:
-              'Altíssima suavidade. Tende a gerar sheets grandes/pesadas.',
-            options: { frameCount: 512 },
-          },
-          {
-            id: 'vs-1024frames',
-            name: '1024 frames – largura original',
-            description:
-              'Nível extremo de frames. Ideal só para usos específicos.',
-            options: { frameCount: 1024 },
-          },
+            { id: 'vs-16', name: '16 Frames', options: { frameCount: 16 } },
+            { id: 'vs-32', name: '32 Frames', options: { frameCount: 32 } },
+            { id: 'vs-64', name: '64 Frames', options: { frameCount: 64 } },
+            { id: 'vs-128', name: '128 Frames', options: { frameCount: 128 } },
+            { id: 'vs-256', name: '256 Frames', options: { frameCount: 256 } },
+            { id: 'vs-512', name: '512 Frames', options: { frameCount: 512 } },
+            { id: 'vs-1024', name: '1024 Frames', options: { frameCount: 1024 } },
+            { id: 'vs-2048', name: '2048 Frames', options: { frameCount: 2048 } }
         ],
         spritesheet: [
-          {
-            id: 'sheet-8col',
-            name: 'Spritesheet 8 colunas (PNG)',
-            description: 'Combina imagens em 8 colunas, saída PNG + JSON.',
-            options: { columns: 8, outputName: 'spritesheet_8col' },
-          },
-          {
-            id: 'sheet-16col',
-            name: 'Spritesheet 16 colunas (PNG)',
-            description: 'Para animações mais longas, 16 colunas.',
-            options: { columns: 16, outputName: 'spritesheet_16col' },
-          },
-          {
-            id: 'sheet-32col',
-            name: 'Spritesheet 32 colunas (PNG)',
-            description:
-              'Muitas imagens em uma linha, bom para export técnico/debug.',
-            options: { columns: 32, outputName: 'spritesheet_32col' },
-          },
-        ],
-        // image-pdf e pdf-image usam só "custom" por enquanto
+          { id: 'sheet-8', name: '8 Colunas', options: { columns: 8 } }
+        ]
       };
 
-      function setStatus(message, type = 'info') {
-        statusBar.textContent = message;
-        statusBar.className = 'status-bar ' + type;
-      }
-
-      function updateSelectionSummary() {
-        if (!selectedFilePaths.length) {
-          selectionSummaryEl.textContent = 'Nenhum arquivo selecionado ainda.';
-          return;
-        }
-        if (selectedFilePaths.length === 1) {
-          selectionSummaryEl.textContent = `1 arquivo selecionado para conversão.`;
-        } else {
-          selectionSummaryEl.textContent = `${selectedFilePaths.length} arquivos selecionados para conversão.`;
-        }
-      }
-
-      function applyOptionsForKind(kind, preset) {
-        if (!preset || typeof preset !== 'object') return;
-
-        if (kind === 'image') {
-          if (preset.targetFormat) imageFormatEl.value = preset.targetFormat;
-          if (typeof preset.width === 'number') {
-            imageWidthEl.value = String(preset.width);
-          } else if (preset.width === undefined) {
-            imageWidthEl.value = '';
-          }
-          if (typeof preset.quality === 'number') {
-            imageQualityEl.value = String(preset.quality);
-          }
-        } else if (kind === 'video-gif') {
-          if (typeof preset.width === 'number') {
-            gifWidthEl.value = String(preset.width);
-          } else if (preset.width === undefined) {
-            gifWidthEl.value = '';
-          }
-          if (typeof preset.fps === 'number') {
-            gifFpsEl.value = String(preset.fps);
-          }
-        } else if (kind === 'spritesheet') {
-          if (typeof preset.columns === 'number') {
-            sheetColumnsEl.value = String(preset.columns);
-          }
-          if (typeof preset.outputName === 'string') {
-            sheetNameEl.value = preset.outputName;
-          }
-        } else if (kind === 'video-spritesheet') {
-          if (typeof preset.width === 'number') {
-            vsWidthEl.value = String(preset.width);
-          } else if (preset.width === undefined) {
-            vsWidthEl.value = '';
-          }
-          if (typeof preset.frameCount === 'number') {
-            vsFramesEl.value = String(preset.frameCount);
-          }
-          if (typeof preset.columns === 'number') {
-            vsColumnsEl.value = String(preset.columns);
-          }
-          if (typeof preset.outputName === 'string') {
-            vsNameEl.value = preset.outputName;
-          }
-        } else if (kind === 'spritesheet-video') {
-          if (typeof preset.fps === 'number') {
-            svFpsEl.value = String(preset.fps);
-          }
-        } else if (kind === 'pdf-image') {
-          if (preset.imageFormat) {
-            piFormatEl.value = preset.imageFormat;
-          }
-          if (typeof preset.dpi === 'number') {
-            piDpiEl.value = String(preset.dpi);
-          }
-        }
-      }
-
-      function getCurrentOptions() {
-        const kind = kindSelect.value;
-
-        if (kind === 'image') {
-          const targetFormat = imageFormatEl.value;
-          const width = imageWidthEl.value
-            ? Number(imageWidthEl.value)
-            : undefined;
-          const quality = imageQualityEl.value
-            ? Number(imageQualityEl.value)
-            : undefined;
-
-          return {
-            targetFormat,
-            width,
-            quality,
-          };
-        }
-
-        if (kind === 'image-pdf') {
-          // por enquanto, sem opções extras: 1 imagem = 1 página
-          return {};
-        }
-
-        if (kind === 'pdf-image') {
-          const imageFormat = piFormatEl.value;
-          const dpi = piDpiEl.value ? Number(piDpiEl.value) : undefined;
-          return {
-            imageFormat,
-            dpi,
-          };
-        }
-
-        if (kind === 'video-gif') {
-          const width = gifWidthEl.value
-            ? Number(gifWidthEl.value)
-            : undefined;
-          const fps = gifFpsEl.value ? Number(gifFpsEl.value) : undefined;
-
-          return {
-            width,
-            fps,
-          };
-        }
-
-        if (kind === 'spritesheet') {
-          const columns = sheetColumnsEl.value
-            ? Number(sheetColumnsEl.value)
-            : undefined;
-          const outputName = sheetNameEl.value || undefined;
-
-          return {
-            columns,
-            outputName,
-          };
-        }
-
-        if (kind === 'video-spritesheet') {
-          const width = vsWidthEl.value ? Number(vsWidthEl.value) : undefined;
-          const frameCount = vsFramesEl.value
-            ? Number(vsFramesEl.value)
-            : undefined;
-          const columns = vsColumnsEl.value
-            ? Number(vsColumnsEl.value)
-            : undefined;
-          const outputName = vsNameEl.value || undefined;
-
-          return {
-            width,
-            frameCount,
-            columns,
-            outputName,
-          };
-        }
-
-        if (kind === 'spritesheet-video') {
-          const fps = svFpsEl.value ? Number(svFpsEl.value) : 12;
-          return { fps };
-        }
-
-        // video-mp3 (sem opções por enquanto)
-        return {};
-      }
+      // --- 2. FUNÇÕES AUXILIARES ---
 
       function updateOptionsVisibility() {
         const kind = kindSelect.value;
-
-        optionsImage.style.display = kind === 'image' ? 'block' : 'none';
-        optionsImagePdf.style.display =
-          kind === 'image-pdf' ? 'block' : 'none';
-        optionsPdfImage.style.display =
-          kind === 'pdf-image' ? 'block' : 'none';
-        optionsVideoGif.style.display =
-          kind === 'video-gif' ? 'block' : 'none';
-        optionsSpritesheet.style.display =
-          kind === 'spritesheet' ? 'block' : 'none';
-        optionsVideoSpritesheet.style.display =
-          kind === 'video-spritesheet' ? 'block' : 'none';
-        optionsSpritesheetVideo.style.display =
-          kind === 'spritesheet-video' ? 'block' : 'none';
-      }
-
-      function getPresetsForKind(kind) {
-        const base = PRESETS[kind] || [];
-        // Sempre garante opção "custom"
-        const custom = {
-          id: 'custom',
-          name: 'Personalizado (usar campos abaixo)',
-          description: 'Edite manualmente os campos de configuração.',
-          options: null,
-        };
-        if (!base.length) return [custom];
-        return [custom, ...base];
-      }
-
-      function updatePresetHint() {
-        const kind = kindSelect.value;
-        const presets = getPresetsForKind(kind);
-        const currentId = presetSelect.value;
-        const current =
-          presets.find((p) => p.id === currentId) || presets[0] || null;
-
-        if (!current || current.id === 'custom') {
-          presetHintEl.textContent =
-            'Ajuste os campos abaixo e o app lembrará o último uso para este tipo.';
-        } else if (current.description) {
-          presetHintEl.textContent = current.description;
-        } else {
-          presetHintEl.textContent = '';
-        }
+        optionContainers.forEach(el => el.classList.add('hidden'));
+        
+        if (kind === 'image') document.getElementById('options-image').classList.remove('hidden');
+        else if (kind === 'video-gif') document.getElementById('options-video-gif').classList.remove('hidden');
+        else if (kind === 'spritesheet') document.getElementById('options-spritesheet').classList.remove('hidden');
+        else if (kind === 'video-spritesheet') document.getElementById('options-video-spritesheet').classList.remove('hidden');
+        else if (kind === 'spritesheet-video') document.getElementById('options-spritesheet-video').classList.remove('hidden');
       }
 
       function refreshPresetSelect() {
         const kind = kindSelect.value;
-        const presets = getPresetsForKind(kind);
+        const presets = PRESETS[kind] || [];
+        const custom = { id: 'custom', name: 'Personalizado', options: null };
+        const list = [custom, ...presets];
 
         presetSelect.innerHTML = '';
-        for (const p of presets) {
+        list.forEach(p => {
           const opt = document.createElement('option');
           opt.value = p.id;
           opt.textContent = p.name;
           presetSelect.appendChild(opt);
-        }
-
-        // Por padrão, "custom" fica selecionado
+        });
         presetSelect.value = 'custom';
-        updatePresetHint();
+        presetHintEl.textContent = '';
       }
 
-      function applySelectedPreset() {
-        const kind = kindSelect.value;
-        const presets = getPresetsForKind(kind);
-        const selectedId = presetSelect.value;
-        const current = presets.find((p) => p.id === selectedId);
-
-        if (!current || current.id === 'custom') {
-          // Não sobrescreve nada, só deixa o usuário editar
-          updatePresetHint();
-          return;
+      function applyOptionsForKind(kind, preset) {
+        if (!preset || typeof preset !== 'object') return;
+        
+        if (kind === 'video-spritesheet') {
+            if (preset.frameCount) document.getElementById('vs-frames').value = preset.frameCount;
         }
-
-        applyOptionsForKind(kind, current.options);
-        updatePresetHint();
-      }
-
-      // Carrega último preset salvo no disco e aplica nos inputs
-      async function loadPresetForCurrentKind() {
-        if (!window.api || typeof window.api.getLastPreset !== 'function') {
-          return;
-        }
-
-        const kind = kindSelect.value;
-
-        try {
-          const preset = await window.api.getLastPreset(kind);
-          if (!preset || typeof preset !== 'object') {
-            // Se não tiver nada salvo ainda, só deixa em "custom"
-            presetSelect.value = 'custom';
-            updatePresetHint();
-            return;
-          }
-
-          applyOptionsForKind(kind, preset);
-          // O preset salvo é tratado como "custom"
-          presetSelect.value = 'custom';
-          updatePresetHint();
-        } catch (err) {
-          console.warn('[UI] Falha ao carregar preset:', err);
+        if (kind === 'image') {
+           if(preset.targetFormat) document.getElementById('image-format').value = preset.targetFormat;
+           if(preset.quality) document.getElementById('image-quality').value = preset.quality;
         }
       }
 
-      function getFileName(fullPath) {
-        if (!fullPath) return '';
-        const parts = fullPath.split(/[/\\]/);
-        return parts[parts.length - 1];
-      }
+      function updateSelectionUI() {
+        const p1 = document.getElementById('drop-text-primary');
+        const p2 = document.getElementById('drop-text-secondary');
 
-      function getStatusLabel(status) {
-        switch (status) {
-          case 'pending':
-            return 'Pendente';
-          case 'running':
-            return 'Convertendo...';
-          case 'completed':
-            return 'Concluída';
-          case 'failed':
-            return 'Falhou';
-          default:
-            return status || 'Desconhecido';
+        if (selectedFilePaths.length === 0) {
+           p1.textContent = 'Clique ou arraste arquivos';
+           p1.className = 'text-sm font-medium text-slate-300 group-hover:text-white transition-colors';
+           p2.textContent = 'Suporta imagens, vídeos e PDF';
+           p2.className = 'text-[10px] text-slate-500 mt-1';
+           dropZone.style.borderColor = ''; 
+           convertBtn.disabled = true;
+        } else {
+           const s = selectedFilePaths.length > 1 ? 's' : '';
+           p1.textContent = `${selectedFilePaths.length} arquivo${s} selecionado${s}`;
+           p1.className = 'text-sm font-bold text-cyan-400 transition-colors';
+           p2.textContent = 'Pronto para converter';
+           p2.className = 'text-[10px] text-cyan-500/70 mt-1';
+           dropZone.style.borderColor = '#22d3ee';
+           convertBtn.disabled = false;
         }
       }
 
       function renderTasks() {
-        if (!tasks.length) {
-          taskListEl.innerHTML = `
-            <div class="task-row">
-              <div>
-                <div class="file-name">Nenhuma tarefa na fila.</div>
-                <div class="file-path">Use “Adicionar arquivos” e depois “Converter”.</div>
-              </div>
-              <div class="task-kind"></div>
-              <div class="task-status"></div>
-              <div class="task-actions"></div>
-            </div>
-          `;
-          tasksSummaryEl.textContent = 'Nenhuma tarefa ainda.';
+        queueCountEl.textContent = tasks.length;
+
+        if (tasks.length === 0) {
+          taskListEl.classList.add('hidden');
+          emptyStateEl.classList.remove('hidden');
+          emptyStateEl.classList.add('flex');
           return;
         }
 
-        const total = tasks.length;
-        const completed = tasks.filter((t) => t.status === 'completed').length;
-        const failed = tasks.filter((t) => t.status === 'failed').length;
-        const running = tasks.filter((t) => t.status === 'running').length;
-
-        tasksSummaryEl.textContent =
-          `Total: ${total} · Em andamento: ${running} · ` +
-          `Concluídas: ${completed} · Falharam: ${failed}`;
-
+        taskListEl.classList.remove('hidden');
+        emptyStateEl.classList.add('hidden');
+        emptyStateEl.classList.remove('flex');
+        
         taskListEl.innerHTML = '';
 
-        for (const task of tasks) {
+        tasks.forEach(task => {
           const row = document.createElement('div');
-          row.className = 'task-row';
+          row.className = 'flex items-center gap-3 p-3 bg-slate-900/50 rounded-lg border border-slate-800 hover:border-slate-700 transition-colors group';
+          
+          const status = task.status || 'pending';
+          let statusColor = 'bg-slate-600';
+          let statusDotClass = '';
+          
+          if(status === 'running') { statusColor = 'bg-amber-400'; statusDotClass = 'status-running-dot relative'; }
+          if(status === 'completed') statusColor = 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]';
+          if(status === 'failed') statusColor = 'bg-red-400';
 
-          const inputPath = task.inputPaths && task.inputPaths[0];
+          const fileName = task.inputPaths && task.inputPaths[0] ? task.inputPaths[0].split(/[/\\]/).pop() : 'Arquivo';
 
-          const resultPath =
-            task.resultPaths && task.resultPaths.length > 0
-              ? task.resultPaths[0]
-              : null;
+          row.innerHTML = `
+             <div class="w-2.5 h-2.5 rounded-full ${statusColor} ${statusDotClass} flex-shrink-0"></div>
+             <div class="flex-1 min-w-0">
+                <div class="text-xs font-medium text-slate-200 truncate" title="${fileName}">${fileName}</div>
+                <div class="text-[10px] text-slate-500 truncate">${task.kind}</div>
+             </div>
+          `;
 
-          const colFile = document.createElement('div');
-          const fileNameEl = document.createElement('div');
-          fileNameEl.className = 'file-name';
-
-          if (
-            (task.kind === 'spritesheet' || task.kind === 'image-pdf') &&
-            task.inputPaths
-          ) {
-            const extra =
-              task.inputPaths.length > 1
-                ? ` (+${task.inputPaths.length - 1})`
-                : '';
-            fileNameEl.textContent = getFileName(inputPath) + extra;
-          } else {
-            fileNameEl.textContent = getFileName(inputPath);
+          if(status === 'completed' && task.resultPaths && task.resultPaths[0]) {
+             const btn = document.createElement('button');
+             btn.className = 'text-[10px] bg-slate-800 hover:bg-cyan-600 text-slate-300 hover:text-white px-2 py-1 rounded transition opacity-0 group-hover:opacity-100';
+             btn.textContent = 'Abrir';
+             btn.onclick = () => window.api?.openInFolder(task.resultPaths[0]);
+             row.appendChild(btn);
           }
-
-          const filePathEl = document.createElement('div');
-          filePathEl.className = 'file-path';
-          filePathEl.textContent = inputPath || '';
-
-          colFile.appendChild(fileNameEl);
-          colFile.appendChild(filePathEl);
-
-          const colKind = document.createElement('div');
-          colKind.className = 'task-kind';
-          colKind.textContent = task.kind;
-
-          const colStatus = document.createElement('div');
-          const statusValue = task.status || 'pending';
-          colStatus.className = 'task-status ' + statusValue;
-
-          const statusInner = document.createElement('div');
-          statusInner.className = 'task-status-inner';
-
-          const statusDot = document.createElement('div');
-          statusDot.className = 'status-dot ' + statusValue;
-
-          const statusLabel = document.createElement('span');
-          statusLabel.textContent = getStatusLabel(statusValue);
-
-          statusInner.appendChild(statusDot);
-          statusInner.appendChild(statusLabel);
-          colStatus.appendChild(statusInner);
-
-          const colActions = document.createElement('div');
-          colActions.className = 'task-actions';
-
-          if (task.status === 'completed' && resultPath) {
-            const openBtn = document.createElement('button');
-            openBtn.className = 'ghost';
-            openBtn.textContent = 'Abrir pasta';
-            openBtn.addEventListener('click', () => {
-              window.api.openInFolder(resultPath);
-            });
-            colActions.appendChild(openBtn);
-          }
-
-          row.appendChild(colFile);
-          row.appendChild(colKind);
-          row.appendChild(colStatus);
-          row.appendChild(colActions);
 
           taskListEl.appendChild(row);
-        }
+        });
       }
 
-      function mergeTasks(newTasks) {
-        for (const t of newTasks) {
-          const idx = tasks.findIndex((x) => x.id === t.id);
-          if (idx === -1) {
-            tasks.push(t);
-          } else {
-            tasks[idx] = t;
-          }
-        }
+      // --- 3. LÓGICA PRINCIPAL & CORREÇÃO DE DUPLICIDADE ---
+
+      // Função segura para adicionar/atualizar tarefas sem duplicar visualmente
+      function mergeTasks(newTasksList) {
+        newTasksList.forEach(nt => {
+            const idx = tasks.findIndex(t => t.id === nt.id);
+            if (idx > -1) {
+                // Se já existe, atualiza
+                tasks[idx] = nt;
+            } else {
+                // Se não existe, adiciona
+                tasks.push(nt);
+            }
+        });
         renderTasks();
       }
 
-      // adiciona arquivos à seleção (botão + drag&drop)
-      function addFilesToSelection(filePaths) {
-        if (!filePaths || !filePaths.length) {
-          setStatus('Nenhum arquivo válido encontrado.', 'info');
-          return;
-        }
-
-        let added = 0;
-        for (const p of filePaths) {
-          if (p && !selectedFilePaths.includes(p)) {
-            selectedFilePaths.push(p);
-            added++;
-          }
-        }
-
-        if (added === 0) {
-          setStatus(
-            'Arquivos já estavam na seleção ou não eram válidos.',
-            'info'
-          );
-        } else if (added === 1) {
-          setStatus('1 arquivo adicionado à seleção.', 'ok');
-        } else {
-          setStatus(`${added} arquivos adicionados à seleção.`, 'ok');
-        }
-
-        updateSelectionSummary();
-      }
-
-      // dispara conversão dos arquivos selecionados
-      async function convertSelectedFiles() {
-        if (!selectedFilePaths.length) {
-          setStatus(
-            'Nenhum arquivo selecionado. Adicione arquivos antes de converter.',
-            'info'
-          );
-          return;
-        }
-
-        const kind = kindSelect.value;
-        const options = getCurrentOptions();
-
-        setStatus(
-          `Convertendo ${selectedFilePaths.length} arquivo(s)...`,
-          'info'
-        );
-
-        try {
-          const newTasks = await window.api.enqueueTasks({
-            kind,
-            filePaths: selectedFilePaths,
-            options,
-          });
-
-          // limpa seleção depois de enfileirar
-          selectedFilePaths = [];
-          updateSelectionSummary();
-
-          mergeTasks(newTasks);
-          setStatus('Tarefas adicionadas à fila. Conversão em andamento.', 'ok');
-        } catch (err) {
-          console.error(err);
-          setStatus('Erro ao converter arquivos: ' + err.message, 'error');
-        }
-      }
-
-      kindSelect.addEventListener('change', () => {
-        updateOptionsVisibility();
-        refreshPresetSelect();
-        loadPresetForCurrentKind();
+      dropZone.addEventListener('click', async () => {
+         if(!window.api?.chooseFiles) {
+            console.warn('API não encontrada (Modo Browser?)');
+            return;
+         }
+         
+         statusBar.textContent = 'Selecionando...';
+         try {
+           const paths = await window.api.chooseFiles(kindSelect.value);
+           if(paths && paths.length) {
+              paths.forEach(p => { if(!selectedFilePaths.includes(p)) selectedFilePaths.push(p); });
+              updateSelectionUI();
+              statusBar.textContent = '';
+           }
+         } catch(e) { console.error(e); statusBar.textContent = ''; }
       });
 
-      presetSelect.addEventListener('change', () => {
-        applySelectedPreset();
+      // Drag & Drop
+      ['dragenter', 'dragover'].forEach(evt => {
+         dropZone.addEventListener(evt, (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+      });
+      ['dragleave', 'drop'].forEach(evt => {
+         dropZone.addEventListener(evt, (e) => { e.preventDefault(); dropZone.classList.remove('drag-over'); });
+      });
+      dropZone.addEventListener('drop', (e) => {
+         if(e.dataTransfer && e.dataTransfer.files.length) {
+            const paths = [];
+            for(const f of e.dataTransfer.files) if(f.path) paths.push(f.path);
+            if(paths.length) {
+               paths.forEach(p => { if(!selectedFilePaths.includes(p)) selectedFilePaths.push(p); });
+               updateSelectionUI();
+            }
+         }
       });
 
-      addFilesBtn.addEventListener('click', async () => {
-        setStatus('Abrindo seletor de arquivos...', 'info');
+      // Botão Converter
+      convertBtn.addEventListener('click', async () => {
+         if(!selectedFilePaths.length) return;
+         if(!window.api?.enqueueTasks) {
+            alert('Erro: API backend desconectada.');
+            return;
+         }
 
-        try {
-          const filePaths = await window.api.chooseFiles(kindSelect.value);
-          addFilesToSelection(filePaths);
-        } catch (err) {
-          console.error(err);
-          setStatus('Erro ao selecionar arquivos: ' + err.message, 'error');
-        }
-      });
+         // Coletar opções atuais
+         const currentPresetId = presetSelect.value;
+         const currentPreset = PRESETS[kindSelect.value]?.find(p => p.id === currentPresetId);
+         const options = currentPreset ? currentPreset.options : {}; 
 
-      convertBtn.addEventListener('click', () => {
-        convertSelectedFiles();
+         try {
+            const newTasks = await window.api.enqueueTasks({
+               kind: kindSelect.value,
+               filePaths: [...selectedFilePaths],
+               options: options
+            });
+            selectedFilePaths = [];
+            updateSelectionUI();
+            
+            // CORREÇÃO DUPLICIDADE: Usamos mergeTasks em vez de push direto
+            mergeTasks(newTasks);
+            statusBar.textContent = 'Processando na fila...';
+         } catch(e) {
+            statusBar.textContent = 'Erro ao iniciar: ' + e.message;
+            statusBar.className = 'text-center text-xs font-medium text-red-400 min-h-[1rem]';
+         }
       });
 
       clearTasksBtn.addEventListener('click', () => {
-        tasks = [];
-        renderTasks();
-        setStatus(
-          'Fila limpa. Tarefas em processamento continuam em background.',
-          'info'
-        );
+         tasks = [];
+         renderTasks();
+         statusBar.textContent = 'Fila limpa.';
       });
 
-      // Evita navegação ao arrastar arquivos para fora da drop-zone
-      ['dragover', 'drop'].forEach((eventName) => {
-        document.addEventListener(eventName, (e) => {
-          e.preventDefault();
-        });
+      kindSelect.addEventListener('change', () => {
+         updateOptionsVisibility();
+         refreshPresetSelect();
+         if(window.api?.getLastPreset) {
+            window.api.getLastPreset(kindSelect.value)
+              .then(p => applyOptionsForKind(kindSelect.value, p))
+              .catch(() => {});
+         }
+      });
+      
+      presetSelect.addEventListener('change', () => {
+         const kind = kindSelect.value;
+         const presets = PRESETS[kind] || [];
+         const sel = presets.find(p => p.id === presetSelect.value);
+         if(sel) applyOptionsForKind(kind, sel.options);
       });
 
-      // Apenas visual (borda verde) – o path vem do preload via native-files-dropped
-      if (dropZone) {
-        ['dragenter', 'dragover'].forEach((eventName) => {
-          dropZone.addEventListener(eventName, (e) => {
-            e.preventDefault();
-            dropZone.classList.add('drag-over');
-          });
-        });
+      // Init
+      updateOptionsVisibility(); 
+      refreshPresetSelect();
 
-        ['dragleave', 'drop'].forEach((eventName) => {
-          dropZone.addEventListener(eventName, (e) => {
-            e.preventDefault();
-            dropZone.classList.remove('drag-over');
-          });
-        });
+      // Listener de eventos do backend (Protegido contra duplicidade)
+      if(window.api?.onQueueEvent) {
+         window.api.onQueueEvent((data) => {
+            if(data.task) {
+               mergeTasks([data.task]); // Usa a mesma função de merge para evitar duplicatas
+            }
+         });
       }
 
-      // Recebe os caminhos reais do preload (webUtils.getPathForFile)
-      window.addEventListener('native-files-dropped', (event) => {
-        const filePaths = (event && event.detail) || [];
-        console.log('[UI] native-files-dropped', filePaths);
+      if(window.api?.getLastPreset) {
+          window.api.getLastPreset(kindSelect.value)
+            .then(p => applyOptionsForKind(kindSelect.value, p))
+            .catch(() => {});
+      }
 
-        if (!filePaths.length) {
-          setStatus(
-            'Não consegui ler os arquivos arrastados. Tente novamente ou use “Adicionar arquivos”.',
-            'error'
-          );
-          return;
-        }
-
-        addFilesToSelection(filePaths);
-      });
-
-      window.api.onQueueEvent((data) => {
-        if (!data) return;
-
-        const task = data.task;
-
-        if (data.type === 'task-failed' && data.errorMessage && task) {
-          mergeTasks([task]);
-          setStatus('Uma tarefa falhou: ' + data.errorMessage, 'error');
-          return;
-        }
-
-        if (data.type === 'idle') {
-          setStatus('Fila ociosa. Todas as tarefas foram processadas.', 'info');
-          return;
-        }
-
-        if (!task || !task.id) return;
-
-        mergeTasks([task]);
-      });
-
-      // Inicialização da tela
-      updateOptionsVisibility();
-      refreshPresetSelect();
-      renderTasks();
-      updateSelectionSummary();
-      setStatus(
-        'Pronto para converter arquivos. Adicione arquivos, escolha um preset ou ajuste os campos e clique em “Converter”.',
-        'info'
-      );
-      loadPresetForCurrentKind();
     </script>
   </body>
 </html>
