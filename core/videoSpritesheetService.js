@@ -6,15 +6,10 @@ const {
   getVideoFps,
 } = require('../infra/videoConverter');
 const { buildSpritesheetFromImages } = require('./spriteService');
-const { getOutputDirForKind } = require('../infra/outputService');
 
 /**
- * Vídeo -> Spritesheet (PNG + JSON).
- *
+ * Vídeo -> Spritesheet (PNG + JSON) usando TODOS os frames.
  * Meta JSON ganha: frameWidth, frameHeight, frameCount, columns, rows, videoFps.
- *
- * Saída final (sheet + JSON):
- *   Downloads/Mídias convertidas/Spritesheets criados
  */
 async function videoToSpritesheet(inputPath, options = {}) {
   if (!fs.existsSync(inputPath)) {
@@ -32,6 +27,7 @@ async function videoToSpritesheet(inputPath, options = {}) {
   }
 
   const parsed = path.parse(inputPath);
+  const baseDir = parsed.dir;
 
   const width =
     options.width && Number.isFinite(options.width)
@@ -46,11 +42,8 @@ async function videoToSpritesheet(inputPath, options = {}) {
   const outputName = options.outputName || `${parsed.name}_sheet`;
   const cleanupFrames = options.cleanupFrames !== false;
 
-  // Diretório de saída final para spritesheets (PNG + JSON)
-  const spriteOutputDir = getOutputDirForKind('video-spritesheet');
-
-  // 1) Extrai TODOS os frames (pode ser em um diretório temporário)
-  const framesDir = path.join(spriteOutputDir, `${parsed.name}_frames`);
+  // 1) Extrai TODOS os frames
+  const framesDir = path.join(baseDir, `${parsed.name}_frames`);
   const framePaths = await extractAllFramesToPngs(inputPath, {
     width,
     outputDir: framesDir,
@@ -78,7 +71,7 @@ async function videoToSpritesheet(inputPath, options = {}) {
   const spriteResult = await buildSpritesheetFromImages(framePaths, {
     columns,
     outputName,
-    outputDir: spriteOutputDir,
+    outputDir: baseDir,
   });
 
   // 4) Abre o JSON gerado e acrescenta metadados de vídeo
@@ -89,23 +82,22 @@ async function videoToSpritesheet(inputPath, options = {}) {
 
     meta.videoFps = videoFps;
     meta.frameCount =
-      meta.frameCount || meta.frames?.length || framePaths.length;
+      meta.frameCount ||
+      meta.frames?.length ||
+      framePaths.length;
 
     fs.writeFileSync(metaPath, JSON.stringify(meta, null, 2), 'utf8');
   } catch (err) {
-    console.warn(
-      '[videoToSpritesheet] Falha ao enriquecer meta JSON:',
-      err.message
-    );
+    console.warn('[videoToSpritesheet] Falha ao enriquecer meta JSON:', err.message);
   }
 
   // 5) Limpa frames temporários, se configurado
   if (cleanupFrames) {
     try {
-      for (const p of framePaths) {
-        fs.unlinkSync(p);
+      if (fs.existsSync(framesDir)) {
+        // Node moderno: rmSync com recursive
+        fs.rmSync(framesDir, { recursive: true, force: true });
       }
-      fs.rmdirSync(framesDir, { recursive: true });
     } catch (err) {
       console.warn('Falha ao limpar frames temporários:', err.message);
     }

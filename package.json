@@ -12,7 +12,8 @@
     "test-video-gif": "node samples/test-video-gif.js",
     "test-spritesheet": "node samples/test-spritesheet.js",
     "test-queue": "node samples/test-queue.js",
-    "test-config": "node samples/test-config.js"
+    "test-config": "node samples/test-config.js",
+    "test-mvp": "node samples/test-mvp-conversions.js"
   },
   "repository": {
     "type": "git",

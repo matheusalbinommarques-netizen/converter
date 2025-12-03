@@ -7,9 +7,9 @@
 //     Mídias convertidas/
 //       Imagens convertidas/
 //       Gifs criados/
-//       Vídeos e áudios criados/
+//       Videos e audios criados/
 //       Spritesheets criados/
-//       Mídias diversas/   (fallback)
+//       Midias diversas/   (fallback)
 
 const fs = require('fs');
 const path = require('path');
@@ -44,14 +44,14 @@ function getBaseOutputDir() {
  * Dado o tipo de conversão (kind), retorna o nome da subpasta
  * dentro de "Mídias convertidas".
  *
- * Mapeamento combinado:
+ * Mapeamento:
  * - image                → Imagens convertidas
  * - video-gif            → Gifs criados
- * - video-mp3            → Vídeos e áudios criados
+ * - video-mp3            → Videos e audios criados   (ASCII para evitar bug no ffmpeg)
  * - spritesheet          → Spritesheets criados
  * - video-spritesheet    → Spritesheets criados
- * - spritesheet-video    → Vídeos e áudios criados (gera vídeo)
- * - default / outros     → Mídias diversas
+ * - spritesheet-video    → Videos e audios criados   (gera vídeo)
+ * - default / outros     → Midias diversas
  */
 function getSubfolderNameForKind(kind) {
   switch (kind) {
@@ -62,17 +62,19 @@ function getSubfolderNameForKind(kind) {
       return 'Gifs criados';
 
     case 'video-mp3':
-      return 'Vídeos e áudios criados';
+      // ASCII para evitar problema no ffmpeg com acentos no Windows
+      return 'Videos e audios criados';
 
     case 'spritesheet':
     case 'video-spritesheet':
       return 'Spritesheets criados';
 
     case 'spritesheet-video':
-      return 'Vídeos e áudios criados';
+      // vídeos reconstruídos a partir de spritesheet
+      return 'Videos e audios criados';
 
     default:
-      return 'Mídias diversas';
+      return 'Midias diversas';
   }
 }
 

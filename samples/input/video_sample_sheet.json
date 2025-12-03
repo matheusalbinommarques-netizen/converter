@@ -1,0 +1,1506 @@
+{
+  "frameWidth": 480,
+  "frameHeight": 270,
+  "columns": 8,
+  "rows": 24,
+  "frameCount": 187,
+  "frames": [
+    {
+      "index": 0,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000001.png",
+      "x": 0,
+      "y": 0,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 1,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000002.png",
+      "x": 480,
+      "y": 0,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 2,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000003.png",
+      "x": 960,
+      "y": 0,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 3,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000004.png",
+      "x": 1440,
+      "y": 0,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 4,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000005.png",
+      "x": 1920,
+      "y": 0,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 5,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000006.png",
+      "x": 2400,
+      "y": 0,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 6,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000007.png",
+      "x": 2880,
+      "y": 0,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 7,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000008.png",
+      "x": 3360,
+      "y": 0,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 8,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000009.png",
+      "x": 0,
+      "y": 270,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 9,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000010.png",
+      "x": 480,
+      "y": 270,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 10,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000011.png",
+      "x": 960,
+      "y": 270,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 11,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000012.png",
+      "x": 1440,
+      "y": 270,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 12,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000013.png",
+      "x": 1920,
+      "y": 270,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 13,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000014.png",
+      "x": 2400,
+      "y": 270,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 14,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000015.png",
+      "x": 2880,
+      "y": 270,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 15,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000016.png",
+      "x": 3360,
+      "y": 270,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 16,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000017.png",
+      "x": 0,
+      "y": 540,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 17,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000018.png",
+      "x": 480,
+      "y": 540,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 18,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000019.png",
+      "x": 960,
+      "y": 540,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 19,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000020.png",
+      "x": 1440,
+      "y": 540,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 20,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000021.png",
+      "x": 1920,
+      "y": 540,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 21,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000022.png",
+      "x": 2400,
+      "y": 540,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 22,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000023.png",
+      "x": 2880,
+      "y": 540,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 23,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000024.png",
+      "x": 3360,
+      "y": 540,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 24,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000025.png",
+      "x": 0,
+      "y": 810,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 25,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000026.png",
+      "x": 480,
+      "y": 810,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 26,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000027.png",
+      "x": 960,
+      "y": 810,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 27,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000028.png",
+      "x": 1440,
+      "y": 810,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 28,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000029.png",
+      "x": 1920,
+      "y": 810,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 29,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000030.png",
+      "x": 2400,
+      "y": 810,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 30,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000031.png",
+      "x": 2880,
+      "y": 810,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 31,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000032.png",
+      "x": 3360,
+      "y": 810,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 32,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000033.png",
+      "x": 0,
+      "y": 1080,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 33,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000034.png",
+      "x": 480,
+      "y": 1080,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 34,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000035.png",
+      "x": 960,
+      "y": 1080,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 35,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000036.png",
+      "x": 1440,
+      "y": 1080,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 36,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000037.png",
+      "x": 1920,
+      "y": 1080,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 37,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000038.png",
+      "x": 2400,
+      "y": 1080,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 38,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000039.png",
+      "x": 2880,
+      "y": 1080,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 39,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000040.png",
+      "x": 3360,
+      "y": 1080,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 40,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000041.png",
+      "x": 0,
+      "y": 1350,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 41,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000042.png",
+      "x": 480,
+      "y": 1350,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 42,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000043.png",
+      "x": 960,
+      "y": 1350,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 43,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000044.png",
+      "x": 1440,
+      "y": 1350,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 44,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000045.png",
+      "x": 1920,
+      "y": 1350,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 45,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000046.png",
+      "x": 2400,
+      "y": 1350,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 46,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000047.png",
+      "x": 2880,
+      "y": 1350,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 47,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000048.png",
+      "x": 3360,
+      "y": 1350,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 48,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000049.png",
+      "x": 0,
+      "y": 1620,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 49,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000050.png",
+      "x": 480,
+      "y": 1620,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 50,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000051.png",
+      "x": 960,
+      "y": 1620,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 51,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000052.png",
+      "x": 1440,
+      "y": 1620,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 52,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000053.png",
+      "x": 1920,
+      "y": 1620,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 53,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000054.png",
+      "x": 2400,
+      "y": 1620,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 54,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000055.png",
+      "x": 2880,
+      "y": 1620,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 55,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000056.png",
+      "x": 3360,
+      "y": 1620,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 56,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000057.png",
+      "x": 0,
+      "y": 1890,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 57,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000058.png",
+      "x": 480,
+      "y": 1890,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 58,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000059.png",
+      "x": 960,
+      "y": 1890,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 59,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000060.png",
+      "x": 1440,
+      "y": 1890,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 60,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000061.png",
+      "x": 1920,
+      "y": 1890,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 61,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000062.png",
+      "x": 2400,
+      "y": 1890,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 62,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000063.png",
+      "x": 2880,
+      "y": 1890,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 63,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000064.png",
+      "x": 3360,
+      "y": 1890,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 64,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000065.png",
+      "x": 0,
+      "y": 2160,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 65,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000066.png",
+      "x": 480,
+      "y": 2160,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 66,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000067.png",
+      "x": 960,
+      "y": 2160,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 67,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000068.png",
+      "x": 1440,
+      "y": 2160,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 68,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000069.png",
+      "x": 1920,
+      "y": 2160,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 69,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000070.png",
+      "x": 2400,
+      "y": 2160,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 70,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000071.png",
+      "x": 2880,
+      "y": 2160,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 71,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000072.png",
+      "x": 3360,
+      "y": 2160,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 72,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000073.png",
+      "x": 0,
+      "y": 2430,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 73,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000074.png",
+      "x": 480,
+      "y": 2430,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 74,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000075.png",
+      "x": 960,
+      "y": 2430,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 75,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000076.png",
+      "x": 1440,
+      "y": 2430,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 76,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000077.png",
+      "x": 1920,
+      "y": 2430,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 77,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000078.png",
+      "x": 2400,
+      "y": 2430,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 78,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000079.png",
+      "x": 2880,
+      "y": 2430,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 79,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000080.png",
+      "x": 3360,
+      "y": 2430,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 80,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000081.png",
+      "x": 0,
+      "y": 2700,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 81,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000082.png",
+      "x": 480,
+      "y": 2700,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 82,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000083.png",
+      "x": 960,
+      "y": 2700,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 83,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000084.png",
+      "x": 1440,
+      "y": 2700,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 84,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000085.png",
+      "x": 1920,
+      "y": 2700,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 85,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000086.png",
+      "x": 2400,
+      "y": 2700,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 86,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000087.png",
+      "x": 2880,
+      "y": 2700,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 87,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000088.png",
+      "x": 3360,
+      "y": 2700,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 88,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000089.png",
+      "x": 0,
+      "y": 2970,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 89,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000090.png",
+      "x": 480,
+      "y": 2970,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 90,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000091.png",
+      "x": 960,
+      "y": 2970,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 91,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000092.png",
+      "x": 1440,
+      "y": 2970,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 92,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000093.png",
+      "x": 1920,
+      "y": 2970,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 93,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000094.png",
+      "x": 2400,
+      "y": 2970,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 94,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000095.png",
+      "x": 2880,
+      "y": 2970,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 95,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000096.png",
+      "x": 3360,
+      "y": 2970,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 96,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000097.png",
+      "x": 0,
+      "y": 3240,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 97,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000098.png",
+      "x": 480,
+      "y": 3240,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 98,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000099.png",
+      "x": 960,
+      "y": 3240,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 99,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000100.png",
+      "x": 1440,
+      "y": 3240,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 100,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000101.png",
+      "x": 1920,
+      "y": 3240,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 101,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000102.png",
+      "x": 2400,
+      "y": 3240,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 102,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000103.png",
+      "x": 2880,
+      "y": 3240,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 103,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000104.png",
+      "x": 3360,
+      "y": 3240,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 104,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000105.png",
+      "x": 0,
+      "y": 3510,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 105,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000106.png",
+      "x": 480,
+      "y": 3510,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 106,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000107.png",
+      "x": 960,
+      "y": 3510,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 107,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000108.png",
+      "x": 1440,
+      "y": 3510,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 108,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000109.png",
+      "x": 1920,
+      "y": 3510,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 109,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000110.png",
+      "x": 2400,
+      "y": 3510,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 110,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000111.png",
+      "x": 2880,
+      "y": 3510,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 111,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000112.png",
+      "x": 3360,
+      "y": 3510,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 112,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000113.png",
+      "x": 0,
+      "y": 3780,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 113,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000114.png",
+      "x": 480,
+      "y": 3780,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 114,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000115.png",
+      "x": 960,
+      "y": 3780,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 115,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000116.png",
+      "x": 1440,
+      "y": 3780,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 116,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000117.png",
+      "x": 1920,
+      "y": 3780,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 117,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000118.png",
+      "x": 2400,
+      "y": 3780,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 118,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000119.png",
+      "x": 2880,
+      "y": 3780,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 119,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000120.png",
+      "x": 3360,
+      "y": 3780,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 120,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000121.png",
+      "x": 0,
+      "y": 4050,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 121,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000122.png",
+      "x": 480,
+      "y": 4050,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 122,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000123.png",
+      "x": 960,
+      "y": 4050,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 123,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000124.png",
+      "x": 1440,
+      "y": 4050,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 124,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000125.png",
+      "x": 1920,
+      "y": 4050,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 125,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000126.png",
+      "x": 2400,
+      "y": 4050,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 126,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000127.png",
+      "x": 2880,
+      "y": 4050,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 127,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000128.png",
+      "x": 3360,
+      "y": 4050,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 128,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000129.png",
+      "x": 0,
+      "y": 4320,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 129,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000130.png",
+      "x": 480,
+      "y": 4320,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 130,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000131.png",
+      "x": 960,
+      "y": 4320,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 131,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000132.png",
+      "x": 1440,
+      "y": 4320,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 132,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000133.png",
+      "x": 1920,
+      "y": 4320,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 133,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000134.png",
+      "x": 2400,
+      "y": 4320,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 134,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000135.png",
+      "x": 2880,
+      "y": 4320,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 135,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000136.png",
+      "x": 3360,
+      "y": 4320,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 136,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000137.png",
+      "x": 0,
+      "y": 4590,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 137,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000138.png",
+      "x": 480,
+      "y": 4590,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 138,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000139.png",
+      "x": 960,
+      "y": 4590,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 139,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000140.png",
+      "x": 1440,
+      "y": 4590,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 140,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000141.png",
+      "x": 1920,
+      "y": 4590,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 141,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000142.png",
+      "x": 2400,
+      "y": 4590,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 142,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000143.png",
+      "x": 2880,
+      "y": 4590,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 143,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000144.png",
+      "x": 3360,
+      "y": 4590,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 144,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000145.png",
+      "x": 0,
+      "y": 4860,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 145,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000146.png",
+      "x": 480,
+      "y": 4860,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 146,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000147.png",
+      "x": 960,
+      "y": 4860,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 147,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000148.png",
+      "x": 1440,
+      "y": 4860,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 148,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000149.png",
+      "x": 1920,
+      "y": 4860,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 149,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000150.png",
+      "x": 2400,
+      "y": 4860,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 150,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000151.png",
+      "x": 2880,
+      "y": 4860,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 151,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000152.png",
+      "x": 3360,
+      "y": 4860,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 152,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000153.png",
+      "x": 0,
+      "y": 5130,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 153,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000154.png",
+      "x": 480,
+      "y": 5130,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 154,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000155.png",
+      "x": 960,
+      "y": 5130,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 155,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000156.png",
+      "x": 1440,
+      "y": 5130,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 156,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000157.png",
+      "x": 1920,
+      "y": 5130,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 157,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000158.png",
+      "x": 2400,
+      "y": 5130,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 158,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000159.png",
+      "x": 2880,
+      "y": 5130,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 159,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000160.png",
+      "x": 3360,
+      "y": 5130,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 160,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000161.png",
+      "x": 0,
+      "y": 5400,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 161,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000162.png",
+      "x": 480,
+      "y": 5400,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 162,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000163.png",
+      "x": 960,
+      "y": 5400,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 163,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000164.png",
+      "x": 1440,
+      "y": 5400,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 164,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000165.png",
+      "x": 1920,
+      "y": 5400,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 165,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000166.png",
+      "x": 2400,
+      "y": 5400,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 166,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000167.png",
+      "x": 2880,
+      "y": 5400,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 167,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000168.png",
+      "x": 3360,
+      "y": 5400,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 168,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000169.png",
+      "x": 0,
+      "y": 5670,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 169,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000170.png",
+      "x": 480,
+      "y": 5670,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 170,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000171.png",
+      "x": 960,
+      "y": 5670,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 171,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000172.png",
+      "x": 1440,
+      "y": 5670,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 172,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000173.png",
+      "x": 1920,
+      "y": 5670,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 173,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000174.png",
+      "x": 2400,
+      "y": 5670,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 174,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000175.png",
+      "x": 2880,
+      "y": 5670,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 175,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000176.png",
+      "x": 3360,
+      "y": 5670,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 176,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000177.png",
+      "x": 0,
+      "y": 5940,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 177,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000178.png",
+      "x": 480,
+      "y": 5940,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 178,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000179.png",
+      "x": 960,
+      "y": 5940,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 179,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000180.png",
+      "x": 1440,
+      "y": 5940,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 180,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000181.png",
+      "x": 1920,
+      "y": 5940,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 181,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000182.png",
+      "x": 2400,
+      "y": 5940,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 182,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000183.png",
+      "x": 2880,
+      "y": 5940,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 183,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000184.png",
+      "x": 3360,
+      "y": 5940,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 184,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000185.png",
+      "x": 0,
+      "y": 6210,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 185,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000186.png",
+      "x": 480,
+      "y": 6210,
+      "width": 480,
+      "height": 270
+    },
+    {
+      "index": 186,
+      "source": "D:\\Projetos\\converter\\samples\\input\\video-sample_frames\\video-sample_frames\\frame-000187.png",
+      "x": 960,
+      "y": 6210,
+      "width": 480,
+      "height": 270
+    }
+  ],
+  "videoFps": 24
+}
