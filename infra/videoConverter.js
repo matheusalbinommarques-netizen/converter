@@ -1,35 +1,37 @@
 // infra/videoConverter.js
-// Conversões de vídeo (→ áudio, → GIF, extração de frames) usando ffmpeg + sharp.
+// Conversões de vídeo (→ áudio, → GIF, extração de frames) usando ffmpeg.
 // Integrado com outputService para salvar em:
 //   Downloads/Mídias convertidas/...
 
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
-const sharp = require('sharp');
 const ffmpeg = require('fluent-ffmpeg');
+const ffmpegStatic = require('ffmpeg-static');
+const ffprobeStatic = require('ffprobe-static');
 const { getOutputDirForKind } = require('./outputService');
 
-// Se você quiser forçar caminhos específicos, pode definir:
-//   FFMPEG_PATH  e  FFPROBE_PATH   nas variáveis de ambiente.
-// Caso contrário, o fluent-ffmpeg usa o ffmpeg/ffprobe do PATH do sistema.
-const ffmpegBinFromEnv = process.env.FFMPEG_PATH || null;
-const ffprobeBinFromEnv = process.env.FFPROBE_PATH || null;
-
-if (ffmpegBinFromEnv) {
-  try {
-    ffmpeg.setFfmpegPath(ffmpegBinFromEnv);
-  } catch {
-    // se der erro, deixa o fluent-ffmpeg tentar achar sozinho
-  }
+// --- Configura o binário do ffmpeg / ffprobe ---
+// ffmpeg-static às vezes exporta string, às vezes objeto.
+let ffmpegBin = ffmpegStatic;
+if (ffmpegBin && typeof ffmpegBin === 'object' && ffmpegBin.path) {
+  ffmpegBin = ffmpegBin.path;
 }
 
-if (ffprobeBinFromEnv) {
-  try {
-    ffmpeg.setFfprobePath(ffprobeBinFromEnv);
-  } catch {
-    // idem acima
-  }
+if (ffmpegBin) {
+  ffmpeg.setFfmpegPath(ffmpegBin);
+} else {
+  console.warn(
+    '[videoConverter] ffmpeg-static não encontrado, usando ffmpeg do sistema (se estiver no PATH).'
+  );
+}
+
+if (ffprobeStatic && ffprobeStatic.path) {
+  ffmpeg.setFfprobePath(ffprobeStatic.path);
+} else {
+  console.warn(
+    '[videoConverter] ffprobe-static não encontrado, usando ffprobe do sistema (se estiver no PATH).'
+  );
 }
 
 /**
@@ -42,35 +44,53 @@ function assertInputExists(inputPath) {
 }
 
 /**
- * Vídeo -> "MP3" (na prática, WAV com PCM, super compatível).
+ * Garante que o vídeo tem pelo menos uma trilha de áudio.
+ * Se não tiver, lança um erro amigável.
+ */
+async function ensureHasAudioStream(inputPath) {
+  const meta = await ffprobePromise(inputPath);
+  const hasAudio =
+    meta &&
+    Array.isArray(meta.streams) &&
+    meta.streams.some((s) => s.codec_type === 'audio');
+
+  if (!hasAudio) {
+    throw new Error('Este vídeo não possui nenhuma trilha de áudio para extrair.');
+  }
+}
+
+/**
+ * Vídeo -> MP3.
  *
  * Se outputDir não for passado, usa:
  *   Downloads/Mídias convertidas/Videos e audios criados
  *
- * Para evitar problemas do ffmpeg com caminhos Unicode/acentos em Windows,
- * ele grava primeiro em um caminho temporário (ASCII) e depois movemos
- * o arquivo final para a pasta correta via Node.
- *
- * Obs.: apesar do nome da função, a saída é WAV. Depois, se quisermos,
- * podemos adicionar uma segunda etapa de conversão WAV -> MP3.
+ * Para evitar problemas de caminho (acentos) com ffmpeg-static em Windows,
+ * gravamos primeiro em um caminho temporário (ASCII) e depois movemos
+ * o arquivo final via Node.
  */
 async function convertVideoToMp3(inputPath, outputDir) {
   assertInputExists(inputPath);
+  await ensureHasAudioStream(inputPath);
 
   const finalOutputDir = outputDir || getOutputDirForKind('video-mp3');
 
   const parsed = path.parse(inputPath);
-  // extensão final WAV (áudio sem perdas, super estável)
-  const outPath = path.join(finalOutputDir, `${parsed.name}.wav`);
+  const finalOutPath = path.join(finalOutputDir, `${parsed.name}.mp3`);
 
   // Caminho temporário seguro (ASCII) em os.tmpdir()
   const tmpDir = os.tmpdir();
   const tmpOutPath = path.join(
     tmpDir,
-    `converter_audio_${Date.now()}_${Math.random().toString(16).slice(2)}.wav`
+    `converter_audio_${Date.now()}_${Math.random().toString(16).slice(2)}.mp3`
   );
 
-  // Garante que não existe resto de tentativa anterior
+  // Garante que a pasta de saída final existe
+  if (!fs.existsSync(finalOutputDir)) {
+    fs.mkdirSync(finalOutputDir, { recursive: true });
+  }
+
+  // Remove sobra antiga no tmp, se existir
   try {
     if (fs.existsSync(tmpOutPath)) {
       fs.unlinkSync(tmpOutPath);
@@ -82,10 +102,9 @@ async function convertVideoToMp3(inputPath, outputDir) {
   await new Promise((resolve, reject) => {
     const cmd = ffmpeg(inputPath)
       .noVideo()
-      // codec de áudio super comum e estável
-      .audioCodec('pcm_s16le')
-      // container WAV
-      .format('wav')
+      .audioCodec('libmp3lame')
+      .audioBitrate('192k')
+      .format('mp3')
       .output(tmpOutPath)
       .on('error', (err) => {
         // tenta limpar o tmp se der erro
@@ -97,9 +116,7 @@ async function convertVideoToMp3(inputPath, outputDir) {
           /* ignore */
         }
         reject(
-          new Error(
-            `Erro ao converter vídeo para áudio WAV: ${err.message}`
-          )
+          new Error(`Erro ao converter vídeo para MP3: ${err.message}`)
         );
       })
       .on('end', () => {
@@ -109,18 +126,18 @@ async function convertVideoToMp3(inputPath, outputDir) {
     cmd.run();
   });
 
-  // Move do tmp para o destino final (onde temos acentos, etc.)
+  // Move do tmp para o destino final (com acentos, etc.)
   try {
-    if (fs.existsSync(outPath)) {
-      fs.unlinkSync(outPath);
+    if (fs.existsSync(finalOutPath)) {
+      fs.unlinkSync(finalOutPath);
     }
   } catch {
     // se não conseguir apagar, vamos tentar sobrescrever mesmo assim
   }
 
-  fs.renameSync(tmpOutPath, outPath);
+  fs.renameSync(tmpOutPath, finalOutPath);
 
-  return outPath;
+  return finalOutPath;
 }
 
 /**
@@ -139,6 +156,10 @@ async function convertVideoToGif(inputPath, options = {}) {
   const { width, fps, outputDir } = options;
 
   const finalOutputDir = outputDir || getOutputDirForKind('video-gif');
+
+  if (!fs.existsSync(finalOutputDir)) {
+    fs.mkdirSync(finalOutputDir, { recursive: true });
+  }
 
   const parsed = path.parse(inputPath);
   const outPath = path.join(finalOutputDir, `${parsed.name}.gif`);

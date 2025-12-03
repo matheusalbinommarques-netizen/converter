@@ -7,7 +7,7 @@ const { createTask } = require('./core/taskTypes');
 const {
   rememberLastPreset,
   getLastPreset,
-} = require('./core/configService'); // ⬅️ ajustado para core
+} = require('./core/configService');
 
 let mainWindow = null;
 const queueManager = new QueueManager();
@@ -33,10 +33,12 @@ function createWindow() {
 
 // Filtros por tipo de conversão
 function getFileFiltersForKind(kind) {
+  // Imagens de entrada
   if (
     kind === 'image' ||
     kind === 'spritesheet' ||
-    kind === 'spritesheet-video'
+    kind === 'spritesheet-video' ||
+    kind === 'image-pdf' // imagens -> PDF
   ) {
     return [
       {
@@ -46,6 +48,17 @@ function getFileFiltersForKind(kind) {
     ];
   }
 
+  // PDFs de entrada
+  if (kind === 'pdf-image') {
+    return [
+      {
+        name: 'PDF',
+        extensions: ['pdf'],
+      },
+    ];
+  }
+
+  // Vídeos de entrada
   if (
     kind === 'video-mp3' ||
     kind === 'video-gif' ||
@@ -59,6 +72,7 @@ function getFileFiltersForKind(kind) {
     ];
   }
 
+  // Fallback genérico
   return [
     {
       name: 'Arquivos',
@@ -71,9 +85,11 @@ function getFileFiltersForKind(kind) {
 
 // Abre diálogo de seleção de arquivos
 ipcMain.handle('choose-files', async (event, payload) => {
-  // preload manda { kind }, mas se algum lugar mandar string, tratamos também
+  // preload pode mandar string ou { kind }
   const kind =
-    typeof payload === 'string' ? payload : payload && payload.kind
+    typeof payload === 'string'
+      ? payload
+      : payload && payload.kind
       ? payload.kind
       : null;
 
@@ -100,7 +116,7 @@ ipcMain.handle('enqueue-tasks', async (event, payload) => {
     throw new Error('Parâmetros inválidos para enqueue-tasks.');
   }
 
-  // 🔹 Lembrar último preset
+  // Lembrar último preset (quando fizer sentido)
   try {
     rememberLastPreset(kind, options || {});
   } catch (err) {
@@ -109,8 +125,10 @@ ipcMain.handle('enqueue-tasks', async (event, payload) => {
 
   const newTasks = [];
 
-  // spritesheet (imagens) -> uma única task com vários inputs
-  if (kind === 'spritesheet') {
+  // Kinds que usam *vários arquivos* na mesma tarefa:
+  // - spritesheet        → várias imagens -> 1 spritesheet
+  // - image-pdf          → várias imagens -> 1 PDF
+  if (kind === 'spritesheet' || kind === 'image-pdf') {
     const task = createTask({
       kind,
       inputPaths: filePaths,
@@ -138,7 +156,9 @@ ipcMain.handle('enqueue-tasks', async (event, payload) => {
 ipcMain.handle('config-get-last-preset', async (event, payload) => {
   try {
     const kind =
-      typeof payload === 'string' ? payload : payload && payload.kind
+      typeof payload === 'string'
+        ? payload
+        : payload && payload.kind
         ? payload.kind
         : null;
     if (!kind) return null;

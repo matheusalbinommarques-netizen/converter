@@ -337,6 +337,8 @@
           <label for="conversion-kind">Tipo de conversão</label>
           <select id="conversion-kind">
             <option value="image">Imagem → Web (PNG/JPEG/WebP)</option>
+            <option value="image-pdf">Imagens → PDF</option>
+            <option value="pdf-image">PDF → Imagens</option>
             <option value="video-mp3">Vídeo → MP3 (áudio)</option>
             <option value="video-gif">Vídeo → GIF</option>
             <option value="spritesheet">Spritesheet (múltiplas imagens)</option>
@@ -379,6 +381,42 @@
                 />
               </div>
             </div>
+          </div>
+
+          <!-- Opções para imagens -> PDF -->
+          <div id="options-image-pdf" style="display: none">
+            <p style="margin-top: 8px; font-size: 0.8rem; opacity: 0.8">
+              As imagens selecionadas serão combinadas em um único PDF, uma por
+              página, na ordem em que aparecem na seleção.
+            </p>
+          </div>
+
+          <!-- Opções para PDF -> imagens -->
+          <div id="options-pdf-image" style="display: none">
+            <div class="small-row">
+              <div>
+                <label for="pi-format">Formato das imagens</label>
+                <select id="pi-format">
+                  <option value="png" selected>PNG</option>
+                  <option value="jpg">JPG</option>
+                  <option value="webp">WebP</option>
+                </select>
+              </div>
+              <div>
+                <label for="pi-dpi">DPI (resolução)</label>
+                <input
+                  id="pi-dpi"
+                  type="number"
+                  min="72"
+                  max="600"
+                  value="150"
+                />
+              </div>
+            </div>
+            <p style="margin-top: 8px; font-size: 0.8rem; opacity: 0.8">
+              Cada página do PDF será exportada como uma imagem separada, na
+              pasta de <strong>Imagens convertidas</strong>.
+            </p>
           </div>
 
           <!-- Opções para vídeo→GIF -->
@@ -542,14 +580,16 @@
       </main>
 
       <footer>
-        Engine de imagem, vídeo, GIF e spritesheet (incluindo
-        vídeo↔spritesheet) conectada via QueueManager.
+        Engine de imagem, vídeo, GIF, spritesheet e PDF conectada via
+        QueueManager.
       </footer>
     </div>
 
     <script>
       const kindSelect = document.getElementById('conversion-kind');
       const optionsImage = document.getElementById('options-image');
+      const optionsImagePdf = document.getElementById('options-image-pdf');
+      const optionsPdfImage = document.getElementById('options-pdf-image');
       const optionsVideoGif = document.getElementById('options-video-gif');
       const optionsSpritesheet = document.getElementById('options-spritesheet');
       const optionsVideoSpritesheet = document.getElementById(
@@ -578,6 +618,9 @@
       const vsNameEl = document.getElementById('vs-name');
 
       const svFpsEl = document.getElementById('sv-fps');
+
+      const piFormatEl = document.getElementById('pi-format');
+      const piDpiEl = document.getElementById('pi-dpi');
 
       const dropZone = document.getElementById('drop-zone');
       const selectionSummaryEl = document.getElementById('selection-summary');
@@ -701,7 +744,7 @@
             options: { columns: 32, outputName: 'spritesheet_32col' },
           },
         ],
-        // spritesheet-video: pode usar FPS manual por enquanto
+        // image-pdf e pdf-image usam só "custom" por enquanto
       };
 
       function setStatus(message, type = 'info') {
@@ -769,6 +812,13 @@
           if (typeof preset.fps === 'number') {
             svFpsEl.value = String(preset.fps);
           }
+        } else if (kind === 'pdf-image') {
+          if (preset.imageFormat) {
+            piFormatEl.value = preset.imageFormat;
+          }
+          if (typeof preset.dpi === 'number') {
+            piDpiEl.value = String(preset.dpi);
+          }
         }
       }
 
@@ -788,6 +838,20 @@
             targetFormat,
             width,
             quality,
+          };
+        }
+
+        if (kind === 'image-pdf') {
+          // por enquanto, sem opções extras: 1 imagem = 1 página
+          return {};
+        }
+
+        if (kind === 'pdf-image') {
+          const imageFormat = piFormatEl.value;
+          const dpi = piDpiEl.value ? Number(piDpiEl.value) : undefined;
+          return {
+            imageFormat,
+            dpi,
           };
         }
 
@@ -844,7 +908,12 @@
 
       function updateOptionsVisibility() {
         const kind = kindSelect.value;
+
         optionsImage.style.display = kind === 'image' ? 'block' : 'none';
+        optionsImagePdf.style.display =
+          kind === 'image-pdf' ? 'block' : 'none';
+        optionsPdfImage.style.display =
+          kind === 'pdf-image' ? 'block' : 'none';
         optionsVideoGif.style.display =
           kind === 'video-gif' ? 'block' : 'none';
         optionsSpritesheet.style.display =
@@ -1008,7 +1077,10 @@
           const fileNameEl = document.createElement('div');
           fileNameEl.className = 'file-name';
 
-          if (task.kind === 'spritesheet' && task.inputPaths) {
+          if (
+            (task.kind === 'spritesheet' || task.kind === 'image-pdf') &&
+            task.inputPaths
+          ) {
             const extra =
               task.inputPaths.length > 1
                 ? ` (+${task.inputPaths.length - 1})`

@@ -9,6 +9,7 @@
 //       Gifs criados/
 //       Videos e audios criados/
 //       Spritesheets criados/
+//       PDFs criados/
 //       Midias diversas/   (fallback)
 
 const fs = require('fs');
@@ -46,16 +47,19 @@ function getBaseOutputDir() {
  *
  * Mapeamento:
  * - image                → Imagens convertidas
+ * - pdf-image            → Imagens convertidas (páginas do PDF viram imagens)
  * - video-gif            → Gifs criados
  * - video-mp3            → Videos e audios criados   (ASCII para evitar bug no ffmpeg)
  * - spritesheet          → Spritesheets criados
  * - video-spritesheet    → Spritesheets criados
  * - spritesheet-video    → Videos e audios criados   (gera vídeo)
+ * - image-pdf            → PDFs criados
  * - default / outros     → Midias diversas
  */
 function getSubfolderNameForKind(kind) {
   switch (kind) {
     case 'image':
+    case 'pdf-image':
       return 'Imagens convertidas';
 
     case 'video-gif':
@@ -72,6 +76,9 @@ function getSubfolderNameForKind(kind) {
     case 'spritesheet-video':
       // vídeos reconstruídos a partir de spritesheet
       return 'Videos e audios criados';
+
+    case 'image-pdf':
+      return 'PDFs criados';
 
     default:
       return 'Midias diversas';
